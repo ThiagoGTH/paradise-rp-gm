@@ -2343,3 +2343,42 @@ StopDragging(playerid)
 	}
 	return 1;
 }
+
+stock Graf_OnPEDObject()
+{
+	if (response == EDIT_RESPONSE_FINAL)
+	{
+	    if (PlayerInfo[playerid][pEditGraffiti] != -1 && GraffitiData[PlayerInfo[playerid][pEditGraffiti]][graffitiExists])
+	    {
+			GraffitiData[PlayerInfo[playerid][pEditGraffiti]][graffitiPos][0] = x;
+			GraffitiData[PlayerInfo[playerid][pEditGraffiti]][graffitiPos][1] = y;
+			GraffitiData[PlayerInfo[playerid][pEditGraffiti]][graffitiPos][2] = z;
+			GraffitiData[PlayerInfo[playerid][pEditGraffiti]][graffitiPos][3] = rz;
+
+			Graffiti_Refresh(PlayerInfo[playerid][pEditGraffiti]);
+			Graffiti_Save(PlayerInfo[playerid][pEditGraffiti]);
+		}
+	}
+	if (response == EDIT_RESPONSE_FINAL || response == EDIT_RESPONSE_CANCEL)
+	{
+	    if (PlayerInfo[playerid][pEditFurniture] != -1)
+			Furniture_Refresh(PlayerInfo[playerid][pEditFurniture]);
+
+	    if (PlayerInfo[playerid][pEditPump] != -1)
+			Pump_Refresh(PlayerInfo[playerid][pEditPump]);
+
+        if (PlayerInfo[playerid][pEditRack] != -1)
+			Rack_Refresh(PlayerInfo[playerid][pEditRack]);
+
+        if (PlayerInfo[playerid][pEditGraffiti] != -1)
+			Graffiti_Refresh(PlayerInfo[playerid][pEditGraffiti]);
+
+	    PlayerInfo[playerid][pEditType] = 0;
+	    PlayerInfo[playerid][pEditGate] = -1;
+		PlayerInfo[playerid][pEditPump] = -1;
+		PlayerInfo[playerid][pGasStation] = -1;
+		PlayerInfo[playerid][pEditFurniture] = -1;
+		PlayerInfo[playerid][pEditGraffiti] = -1;
+	}
+	return 1;
+}
