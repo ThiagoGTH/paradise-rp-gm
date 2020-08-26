@@ -2344,7 +2344,7 @@ StopDragging(playerid)
 	return 1;
 }
 
-stock Graf_OnPEDObject()
+stock Graf_OnPEDObject(playerid, response, Float:x, Float:y, Float:z, Float:rz)
 {
 	if (response == EDIT_RESPONSE_FINAL)
 	{
@@ -2361,23 +2361,9 @@ stock Graf_OnPEDObject()
 	}
 	if (response == EDIT_RESPONSE_FINAL || response == EDIT_RESPONSE_CANCEL)
 	{
-	    if (PlayerInfo[playerid][pEditFurniture] != -1)
-			Furniture_Refresh(PlayerInfo[playerid][pEditFurniture]);
-
-	    if (PlayerInfo[playerid][pEditPump] != -1)
-			Pump_Refresh(PlayerInfo[playerid][pEditPump]);
-
-        if (PlayerInfo[playerid][pEditRack] != -1)
-			Rack_Refresh(PlayerInfo[playerid][pEditRack]);
-
         if (PlayerInfo[playerid][pEditGraffiti] != -1)
 			Graffiti_Refresh(PlayerInfo[playerid][pEditGraffiti]);
 
-	    PlayerInfo[playerid][pEditType] = 0;
-	    PlayerInfo[playerid][pEditGate] = -1;
-		PlayerInfo[playerid][pEditPump] = -1;
-		PlayerInfo[playerid][pGasStation] = -1;
-		PlayerInfo[playerid][pEditFurniture] = -1;
 		PlayerInfo[playerid][pEditGraffiti] = -1;
 	}
 	return 1;

@@ -445,15 +445,15 @@ CMD:setarequipe(playerid, params[])
 		{
 			PlayerInfo[userid][pPropertyMod] = false;
 
-			SendAdminAction(playerid, "Você retirou %s da faction team.", pNome(userid));
-			SendAdminAction(userid, "%s removeu você da faction team.", pNome(playerid));
+			SendAdminAction(playerid, "Você retirou %s da property team.", pNome(userid));
+			SendAdminAction(userid, "%s removeu você da property team.", pNome(playerid));
 		}
 		else
 		{
 			PlayerInfo[userid][pPropertyMod] = true;
 
-			SendAdminAction(playerid, "Você colocou %s na faction team.", pNome(userid));
-			SendAdminAction(userid, "%s colocou você na faction team.", pNome(playerid));
+			SendAdminAction(playerid, "Você colocou %s na property team.", pNome(userid));
+			SendAdminAction(userid, "%s colocou você na property team.", pNome(playerid));
 		}
 	}
 
@@ -971,7 +971,7 @@ CMD:ir(playerid, params[])
 	if (sscanf(params, "u", id))
  	{
 	 	SendSyntaxMessage(playerid, "/ir [player ou nome]");
-		SendClientMessage(playerid, COLOR_YELLOW, "NOMES:{FFFFFF} pos, carro, pichação, prisão, interior, entrada");
+		SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa");
 		return 1;
 	}
     if (id == INVALID_PLAYER_ID)
@@ -979,7 +979,7 @@ CMD:ir(playerid, params[])
 	    if (sscanf(params, "s[24]S()[64]", type, string))
 		{
 		    SendSyntaxMessage(playerid, "/ir [player ou nome]");
-			SendClientMessage(playerid, COLOR_YELLOW, "NOMES:{FFFFFF} pos, carro, pichação, prisão, interior, entrada");
+			SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa");
 			return 1;
 	    }
 
@@ -1019,7 +1019,7 @@ CMD:ir(playerid, params[])
 
 	        return SendServerMessage(playerid, "Você se teleportou até o carro.");
 		}
-		else if (!strcmp(type, "entrdada", true))
+		else if (!strcmp(type, "entrada", true))
 		{
 		    if (sscanf(string, "d", id))
 		        return SendSyntaxMessage(playerid, "/ir entrada [ID]");
@@ -1035,14 +1035,24 @@ CMD:ir(playerid, params[])
 		    return 1;
 		}
 
+		else if (!strcmp(type, "casa", true))
+		{
+		    if (sscanf(string, "d", id))
+		        return SendSyntaxMessage(playerid, "/ir casa [ID]");
+
+			if(!Iter_Contains(Houses, id)) 
+			    return SendErrorMessage(playerid, "Você especificou o ID de uma casa inexistente.");
+
+		    SetPlayerPos(playerid, HouseData[id][houseX], HouseData[id][houseY], HouseData[id][houseZ]);
+			SetPlayerInterior(playerid, 0);
+			SetPlayerVirtualWorld(playerid, 0);
+
+		    SendServerMessage(playerid, "Você se teleportou para a casa ID: %d.", id);
+		    return 1;
+		}
+
 		if (!strcmp(type, "pichação", true)) 
 		{
-	        if (PlayerInfo[playerid][pFactionMod] < 1)
-				return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
-			
-			if (PlayerInfo[playerid][user_admin] < 3)
-				return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
-
 			if (sscanf(string, "d", id))
 				return SendSyntaxMessage(playerid, "/ir pichação [pichação id]");
 
@@ -1058,12 +1068,6 @@ CMD:ir(playerid, params[])
 
 		if (!strcmp(type, "prisão", true)) 
 		{
-	        if (PlayerInfo[playerid][pFactionMod] < 1)
-				return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
-			
-			if (PlayerInfo[playerid][user_admin] < 3)
-				return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
-
 			if (sscanf(string, "d", id))
 				return SendSyntaxMessage(playerid, "/ir prisão [prisão id]");
 

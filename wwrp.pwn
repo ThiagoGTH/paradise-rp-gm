@@ -411,6 +411,7 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/factions/arrest.pwn"
 
 // PROPERTY
+#include "../gamemodes/modulos/props/house.pwn"
 #include "../gamemodes/modulos/props/entrance.pwn"
 
 // ADMIN
@@ -496,6 +497,7 @@ public OnGameModeInit()
 	BlackRadar = GangZoneCreate(-3334.758544, -3039.903808, 3049.241455, 3184.096191);
 
 	// MODULOS
+	house_OnGMInit();
 	ban_OnGameModeInit();
 	spec_OnGameModeInit();
 	fac_OnGMInit();
@@ -511,14 +513,15 @@ public OnGameModeExit()
 {
 	foreach(new i: Player)
 	{
-if(IsPlayerConnected(i))
-{
-	OnPlayerDisconnect(i, 1);
-}
+		if(IsPlayerConnected(i))
+		{
+		OnPlayerDisconnect(i, 1);
+		}
 	}
 	mysql_close(Database);
 	Ovni_OnGameModeExit();
 	spec_OnGameModeExit();
+	house_OnGMExit();
 
 	return 1;
 }
@@ -563,14 +566,13 @@ public OnPlayerConnect(playerid)
 	LoadPrison2(playerid);
 	ban_OnPlayerConnect(playerid);
 	spec_OnPlayerConnect(playerid);
-//	pl_OnPlayerConnect(playerid);
 	dc_OnPlayerConnect(playerid);
+	House_PlayerInit(playerid);
 	return 1;
 }
 public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 {
 	spec_OnPlyIntChange(playerid, newinteriorid);
-	//pl_OnPlyIntChange(playerid, newinteriorid);
 	return 1;
 }
 
@@ -583,7 +585,7 @@ public OnPlayerSpawn(playerid)
 {
 	spec_OnPlayerSpawn(playerid);
 	inj_OnPlayerSpawn(playerid);
-///	pl_OnPlayerSpawn(playerid);
+	house_OnPlayerSpawn(playerid);
 	return 1;
 }
 
@@ -599,16 +601,15 @@ public OnPlayerDisconnect(playerid, reason)
 	new string[128];
 	switch(reason)
 	{
-case 0:format(string,sizeof(string),"* %s saiu do servidor por erro de conexão ou crash.", pNome(playerid));
-case 1:format(string,sizeof(string),"* %s saiu do servidor por vontade própria.", pNome(playerid));
-case 2:format(string,sizeof(string),"* %s saiu do servidor kickado ou banido.", pNome(playerid));
-default:format(string,sizeof(string),"* %s saiu do servidor por causa desconhecida.", pNome(playerid));
+		case 0:format(string,sizeof(string),"* %s saiu do servidor por erro de conexão ou crash.", pNome(playerid));
+		case 1:format(string,sizeof(string),"* %s saiu do servidor por vontade própria.", pNome(playerid));
+		case 2:format(string,sizeof(string),"* %s saiu do servidor kickado ou banido.", pNome(playerid));
+		default:format(string,sizeof(string),"* %s saiu do servidor por causa desconhecida.", pNome(playerid));
 	}
 	SendClientMessageInRange(30.0, playerid, string, COLOR_YELLOW2,COLOR_YELLOW2,COLOR_YELLOW2,COLOR_YELLOW2,COLOR_YELLOW2);
 
 	TerminateConnection(playerid);
 	spec_OnPlayerDisconnect(playerid);
-//	pl_OnPlayerDisconnect(playerid);
 	dc_OnPlayerDisconnect(playerid);
 	return 1;
 }
@@ -618,12 +619,12 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 	if (result == -1) return SendClientMessage(playerid, -1,"ERRO: Desculpe, este comando não existe. Digite /ajuda ou /sos se você precisar de ajuda.");
 	return 1;
 }
+
 //new SERVER_DOWNLOAD[] = "http://www.dev-wil.com/downloads/038/models";
 public OnPlayerRequestDownload(playerid, type, crc)
 {
 	if(!IsPlayerConnected(playerid))
-return 0;
-
+		return 0;
 /*	new filename[64], filefound, url_final[256];
 
 	if(type == DOWNLOAD_REQUEST_TEXTURE_FILE)
@@ -706,7 +707,9 @@ public SaveAccount(playerid)
 	`Guns13` = '%d', \
 	`Ammo13` = '%d', \
 	`JailTime` = '%d', \
-	`Prisoned` = '%d' WHERE `ID` = '%i'",
+	`Prisoned` = '%d', \
+	`Entrance` = '%d', \
+	`House` = '%d' WHERE `ID` = '%i'",
 	PlayerInfo[playerid][user_cash],
 	PlayerInfo[playerid][user_kills],
 	PlayerInfo[playerid][user_deaths],
@@ -760,6 +763,9 @@ public SaveAccount(playerid)
 	//
 	PlayerInfo[playerid][pJailTime],
 	PlayerInfo[playerid][pPrisoned],
+	// PROPS
+	PlayerInfo[playerid][pHouse],
+	PlayerInfo[playerid][pEntrance],
 	PlayerInfo[playerid][user_id]);
 	mysql_tquery(Database, query);
 
@@ -772,6 +778,12 @@ mysql_format(Database, query, sizeof(query), "%s, `Gun%d` = '%d',\
 	return 1;
 }
 
+public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
+{
+	Graf_OnPEDObject(playerid, response, Float:x, Float:y, Float:z, Float:rz);
+	house_OnPEDObject(playerid, objectid, response, Float: x, Float: y, Float: z, Float: rx, Float: ry, Float: rz);
+	return 1;
+}
 forward ZerarDados(playerid);
 stock ZerarDados(playerid)
 {
@@ -847,7 +859,6 @@ stock ZerarDados(playerid)
 	if (PlayerInfo[playerid][pDragged]) {
 	    StopDragging(playerid);
 	}
-
 }
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
@@ -1168,6 +1179,9 @@ public OnPlayerLoad(playerid)
 	cache_get_value_name_int(0, "FactionRank", PlayerInfo[playerid][pFactionRank]);
 	cache_get_value_name_int(0, "Material", PlayerInfo[playerid][pMaterial]);
 
+	cache_get_value_name_int(0, "House", PlayerInfo[playerid][pHouse]);
+	cache_get_value_name_int(0, "Entrance", PlayerInfo[playerid][pEntrance]);
+
 	cache_get_value_name_int(0, "Guns1", PlayerInfo[playerid][pGuns][0]);
 	cache_get_value_name_int(0, "Ammo1", PlayerInfo[playerid][pAmmo][0]);
 	cache_get_value_name_int(0, "Guns2", PlayerInfo[playerid][pGuns][1]);
@@ -1430,15 +1444,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 	if(dialogid == 4600)
 	{
-if(!response)return SendClientMessage(playerid, COLOR_GRAD1, "Você não quis ir ao local que marcou no mapa.");
-if(PlayerInfo[playerid][user_admin] >= 4)
-{
-	SetPlayerPos(playerid, GetPVarFloat(playerid, "FindX"), GetPVarFloat(playerid, "FindY"), GetPVarFloat(playerid, "FindZ")+4);
-	SendClientMessage(playerid, COLOR_GRAD1, "Você foi ao local que marcou no mapa.");
-}
-return true;
+		if(!response)return SendClientMessage(playerid, COLOR_GRAD1, "Você não quis ir ao local que marcou no mapa.");
+		if(PlayerInfo[playerid][user_admin] >= 4)
+		{
+			SetPlayerPos(playerid, GetPVarFloat(playerid, "FindX"), GetPVarFloat(playerid, "FindY"), GetPVarFloat(playerid, "FindZ")+4);
+			SendClientMessage(playerid, COLOR_GRAD1, "Você foi ao local que marcou no mapa.");
+		}
+		return true;
 	}
-
+	house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	wf_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	return true;
 }
@@ -1962,7 +1976,7 @@ SendPlayerToPlayer(playerid, targetid)
 	SetPlayerInterior(playerid, GetPlayerInterior(targetid));
 	SetPlayerVirtualWorld(playerid, GetPlayerVirtualWorld(targetid));
 
-	//PlayerInfo[playerid][pHouse] = PlayerInfo[targetid][pHouse];
+	PlayerInfo[playerid][pHouse] = PlayerInfo[targetid][pHouse];
 	//PlayerInfo[playerid][pBusiness] = PlayerInfo[targetid][pBusiness];
 	PlayerInfo[playerid][pEntrance] = PlayerInfo[targetid][pEntrance];
 	//PlayerInfo[playerid][pHospitalInt]  = PlayerInfo[targetid][pHospitalInt];
@@ -2065,14 +2079,15 @@ ResetWeapon(playerid, weaponid)
 {
 	ResetPlayerWeapons(playerid);
 
-	for (new i = 0; i < 13; i ++) {
-if (PlayerInfo[playerid][pGuns][i] != weaponid) {
-	GivePlayerWeapon(playerid, PlayerInfo[playerid][pGuns][i], PlayerInfo[playerid][pAmmo][i]);
-}
-else {
-	PlayerInfo[playerid][pGuns][i] = 0;
-	PlayerInfo[playerid][pAmmo][i] = 0;
-}
+	for (new i = 0; i < 13; i ++)
+	{
+		if (PlayerInfo[playerid][pGuns][i] != weaponid) {
+			GivePlayerWeapon(playerid, PlayerInfo[playerid][pGuns][i], PlayerInfo[playerid][pAmmo][i]);
+		}
+		else {
+			PlayerInfo[playerid][pGuns][i] = 0;
+			PlayerInfo[playerid][pAmmo][i] = 0;
+		}
 	}
 	return 1;
 }

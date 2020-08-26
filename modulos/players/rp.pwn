@@ -260,7 +260,7 @@ CMD:ajuda(playerid, params[])
     	SendClientMessage(playerid, COLOR_GRAD2, "[CHAT] /me /do /ame /ado /b /g /baixo /id /animlist /pm");
 		SendClientMessage(playerid, COLOR_GRAD2, "[GERAL] /tempo /consertarvw /limparmeuchat /mudarsenha /passararma");
     	SendClientMessage(playerid, COLOR_GRAD2, "[GERAL] /pagar");
-		SendClientMessage(playerid, COLOR_YELLOW,"OUTROS: /ajuda tela, /ajuda veiculo, /ajuda facção");
+		SendClientMessage(playerid, COLOR_YELLOW,"OUTROS: /ajuda tela, /ajuda veiculo, /ajuda facção, /ajuda casa");
 	    if(PlayerInfo[playerid][user_admin] >= 1)
 		{
 			SendClientMessage(playerid, COLOR_LIGHTRED, "[ADMIN] AJUDA ADMINISTRATIVA: /aa");
@@ -273,13 +273,16 @@ CMD:ajuda(playerid, params[])
 		SendClientMessage(playerid, COLOR_GRAD2, "UTILIZE: /tela [syntax]");
 		SendClientMessage(playerid, COLOR_GRAD2, "SYNTAXES: 0 para desativar, 1 para tela preta, 2 para marrom, 3 para cinza.");
 		SendClientMessage(playerid, COLOR_GRAD2, "SYNTAXES: 4 para laranja.");
-		SendClientMessage(playerid, COLOR_YELLOW,"OUTROS: /ajuda, /ajuda veiculo, /ajuda facção");
 	}
 	else if(strcmp(option, "veiculo", true) == 0)
 	{
 		SendClientMessage(playerid, COLOR_WHITE,"AJUDA VEÍCULO:");
 		SendClientMessage(playerid, COLOR_GRAD2,"COMANDOS: /motor, /luzes, /capo, /janela");
-		SendClientMessage(playerid, COLOR_YELLOW,"- OUTROS - /ajuda, /ajuda tela, /ajuda facção");
+	}
+	else if(strcmp(option, "casa", true) == 0)
+	{
+		SendClientMessage(playerid, COLOR_WHITE,"AJUDA CASA:");
+		SendClientMessage(playerid, COLOR_GRAD2,"COMANDOS: /menucasa, /entrar, /retirarchaves, /darchaves, /chaves");
 	}
 	else if(strcmp(option, "ft", true) == 0)
 	{
@@ -298,6 +301,7 @@ CMD:ajuda(playerid, params[])
 
 		SendClientMessage(playerid, COLOR_WHITE,"PROPERTY TEAM:");
 		SendClientMessage(playerid, COLOR_GRAD2, "COMANDOS: /criarentrada, /destruirentrada, /editarentrada");
+		SendClientMessage(playerid, COLOR_GRAD2, "COMANDOS: /criarcasa, /destruircasa, /editarcasa, /resetarcasa");
 	}
 	else if(strcmp(option, "facção", true) == 0)
 	{

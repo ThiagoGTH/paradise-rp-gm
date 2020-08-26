@@ -679,7 +679,7 @@ Entrance_Refresh(entranceid)
 		    DestroyDynamicMapIcon(EntranceData[entranceid][entranceMapIcon]);
 
 		EntranceData[entranceid][entranceText3D] = CreateDynamic3DTextLabel(EntranceData[entranceid][entranceName], COLOR_DARKBLUE, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], 15.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 0, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
-        EntranceData[entranceid][entrancePickup] = CreateDynamicPickup(1559, 23, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2] + 0.7, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
+        EntranceData[entranceid][entrancePickup] = CreateDynamicPickup(1239, 23, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2] + 0.7, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
 
 		if (EntranceData[entranceid][entranceIcon] != 0)
 			EntranceData[entranceid][entranceMapIcon] = CreateDynamicMapIcon(EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], EntranceData[entranceid][entranceIcon], 0, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
@@ -1068,6 +1068,50 @@ CMD:entrar(playerid, params[])
 {
     static
 		id = -1;
+	
+	if ((id = House_Nearest(playerid)) != -1)
+	{
+		if(InHouse[playerid] == INVALID_HOUSE_ID)
+		{
+			switch(HouseData[id][LockMode])
+			{
+				case LOCK_MODE_NOLOCK: SendToHouse(playerid, id);
+				case LOCK_MODE_PASSWORD: ShowPlayerDialog(playerid, DIALOG_HOUSE_PASSWORD, DIALOG_STYLE_INPUT, "Senha da Casa", "Essa casa é protegida por senha.\n\nDigite a senha da casa:", "Ok", "Fechar");
+				case LOCK_MODE_KEYS:
+				{
+					new gotkeys = Iter_Contains(HouseKeys[playerid], id);
+					if(!gotkeys) if(!strcmp(HouseData[id][Owner], Player_GetName(playerid))) gotkeys = 1;
+
+					if(gotkeys) {
+						SendToHouse(playerid, id);
+					}else{
+						SendErrorMessage(playerid, "Você não possui as chaves dessa casa, então não pode entrar.");
+					}
+				}
+
+				case LOCK_MODE_OWNER:
+				{
+					if(!strcmp(HouseData[id][Owner], Player_GetName(playerid))) {
+						//SetPVarInt(playerid, "HousePickupCooldown", gettime() + HOUSE_COOLDOWN);
+						SendToHouse(playerid, id);
+					}else{
+						SendErrorMessage(playerid, "Apenas o dono da residência pode entrar.");
+					}
+				}
+			}
+		}
+		return 1;
+	}
+	
+	if ((id = House_NearestInt(playerid)) != -1)
+	{
+		// SetPVarInt(playerid, "HousePickupCooldown", gettime() + HOUSE_COOLDOWN);
+		SetPlayerVirtualWorld(playerid, 0);
+		SetPlayerInterior(playerid, 0);
+		SetPlayerPos(playerid, HouseData[ InHouse[playerid] ][houseX], HouseData[ InHouse[playerid] ][houseY], HouseData[ InHouse[playerid] ][houseZ]);
+		InHouse[playerid] = INVALID_HOUSE_ID;
+		return 1;
+	}
 
     if ((id = Entrance_Nearest(playerid)) != -1)
 	{
