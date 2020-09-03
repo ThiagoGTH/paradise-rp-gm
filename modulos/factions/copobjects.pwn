@@ -578,20 +578,6 @@ CMD:editarobjeto(playerid, params[])
 	EditDynamicObject(playerid, CopObjectData[id][ObjID]);
 	return 1;
 }
-/*
-CMD:gotoobject(playerid, params[])
-{
-	if(!IsPlayerAdmin(playerid)) return SendErrorMessage(playerid, "Only RCON admins can use this command.");
-	if(isnull(params)) return SendSyntaxMessage(playerid, "/gotoobject [id]");
-	new id = strval(params[0]);
-	if(!(0 <= id <= MAX_COP_OBJECTS - 1)) return SendErrorMessage(playerid, "ID do objeto inexistente.");
-	if(!CopObjectData[id][ObjCreated]) return SendErrorMessage(playerid, "Objeto não existe.");
-	SetPlayerPos(playerid, CopObjectData[id][ObjX], CopObjectData[id][ObjY], CopObjectData[id][ObjZ] + 1.75);
-	SetPlayerInterior(playerid, CopObjectData[id][ObjInterior]);
-	SetPlayerVirtualWorld(playerid, CopObjectData[id][ObjVirtualWorld]);
-	SendServerMessage(playerid, "Teleported to object.");
-	return 1;
-}*/
 
 CMD:removerobjeto(playerid, params[])
 {

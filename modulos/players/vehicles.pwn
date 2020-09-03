@@ -6,29 +6,8 @@ enum coreVehicles {
 	vehSirenObject,
 };
 new CoreVehicles[MAX_VEHICLES][coreVehicles];
-//#define MAX_DYNAMIC_CARS (1500)
 new vehiclecallsign[MAX_VEHICLES];
-/*
-enum carData {
-	carID,
-	carExists,
-	carModel,
-	carOwner,
-	Float:carPos[4],
-	carColor1,
-	carColor2,
-	carPaintjob,
-	carLocked,
-	carMods[14],
-	carImpounded,
-	carImpoundPrice,
-	carFaction,
-	carWeapons[5],
-	carAmmo[5],
-	carVehicle
-};
-new CarData[MAX_DYNAMIC_CARS][carData];
-*/
+
 CMD:destruiradmincarro(playerid, params[])
 {
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
@@ -180,7 +159,7 @@ CMD:capo(playerid, params[])
 		{
 	        SetHoodStatus(i, true);
 
-	        GameTextForPlayer(playerid,"~w~Capo~g~aberto~w~!",3000,4);
+	        GameTextForPlayer(playerid,"~w~Capo ~g~aberto~w~!",3000,4);
 		}
 		else
 		{

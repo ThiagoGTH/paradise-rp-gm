@@ -1707,48 +1707,21 @@ CMD:perto(playerid, params[])
 
 	if ((id = Gate_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "Você está perto do portão ID: %d.", id);
-	/*
-    if ((id = Business_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near business ID: %d.", id);*/
-
+		
     if ((id = Entrance_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "Você está perto da entrada ID: %d.", id);
-
-   /* if ((id = Job_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near job ID: %d.", id);*/
 
     if ((id = Arrest_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "Você está perto do ponto de prisão ID: %d.", id);
 
-    /*if ((id = Pump_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near pump ID: %d.", id);
-
-    if ((id = Crate_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near crate ID: %d.", id);
-*/
     if ((id = IsPlayerNearBanker(playerid)) != -1)
 	    SendServerMessage(playerid, "Você está perto do banco ID: %d.", id);
 
     if ((id = GetClosestATM(playerid)) != -1)
 	    SendServerMessage(playerid, "Você está perto do ATM ID: %d.", id);
-/*
-    if ((id = Garbage_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near garbage bin ID: %d.", id);
-
-    if ((id = Vendor_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near vendor ID: %d.", id);
-
-	if ((id = Rack_Nearest(playerid)) != -1)
- 		SendServerMessage(playerid, "You are standing near weapon rack ID: %d.", id);
-
-    if ((id = Speed_Nearest(playerid)) != -1)
- 		SendServerMessage(playerid, "You are standing near speed camera ID: %d.", id);*/
 
     if ((id = Graffiti_Nearest(playerid)) != -1)
  		SendServerMessage(playerid, "Você está perto do ponto de pichação ID: %d.", id);
-
-    /*if ((id = Detector_Nearest(playerid)) != -1)
- 		SendServerMessage(playerid, "You are standing near detector ID: %d.", id);*/
 
 	return 1;
 }

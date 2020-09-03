@@ -366,7 +366,8 @@ CMD:ajuda(playerid, params[])
 
 			if (GetFactionType(playerid) == FACTION_POLICE) {
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /dep, /sirene, /callsign, /m, /arrastar, /prender, /algemar, /desalgemar, /deter");
-				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /abrircela, /taser, /beanbag, /colocarobjeto, /editarobjeto,");
+				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /abrircela, /taser, /beanbag, /colocarobjeto, /editarobjeto, /guinchar, /soltarguincho");
+				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /apreender");
 			}
 			else if (GetFactionType(playerid) == FACTION_NEWS) {
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /callsign");
@@ -492,5 +493,59 @@ CMD:pagar(playerid, params[])
 	
 	format(string, sizeof(string), " `LOG-PAYMENT:` [%s] **%s** *(%s)* pagou %s para **%s** *(%s)*", ReturnDate(), pNome(playerid), ReturnIP(playerid), FormatNumber(amount), pNome(userid), ReturnIP(userid));
 	DCC_SendChannelMessage(DC_Logs1, string);
+	return 1;
+}
+
+
+CMD:trancar(playerid, params[])
+{
+	static
+	    id = -1;
+	if (!IsPlayerInAnyVehicle(playerid) && (id = (Entrance_Inside(playerid) == -1) ? (Entrance_Nearest(playerid)) : (Entrance_Inside(playerid))) != -1)
+	{
+		if (strlen(EntranceData[id][entrancePass]))
+		{
+			Dialog_Show(playerid, EntrancePass, DIALOG_STYLE_INPUT, "SENHA", "Por favor, digite a senha para essa entrada:", "Enviar", "Cancelar");
+		}
+	}
+
+	if ((id = Car_Nearest(playerid)) != -1)
+	{
+	    static
+	        engine,
+	        lights,
+	        alarm,
+	        doors,
+	        bonnet,
+	        boot,
+	        objective;
+
+	    GetVehicleParamsEx(CarData[id][carVehicle], engine, lights, alarm, doors, bonnet, boot, objective);
+
+	    if (Car_IsOwner(playerid, id) || (PlayerInfo[playerid][pFaction] != -1 && CarData[id][carFaction] == GetFactionType(playerid)))
+	    {
+			if (!CarData[id][carLocked])
+			{
+				CarData[id][carLocked] = true;
+				Car_Save(id);
+
+				GameTextForPlayer(playerid,"~w~Carro ~r~trancado~w~!",3000,4);
+				PlayerPlaySound(playerid, 1145, 0.0, 0.0, 0.0);
+
+				SetVehicleParamsEx(CarData[id][carVehicle], engine, lights, alarm, 1, bonnet, boot, objective);
+			}
+			else
+			{
+				CarData[id][carLocked] = false;
+				Car_Save(id);
+
+				GameTextForPlayer(playerid,"~w~Carro ~g~destrancado~w~!",3000,4);
+				PlayerPlaySound(playerid, 1145, 0.0, 0.0, 0.0);
+
+				SetVehicleParamsEx(CarData[id][carVehicle], engine, lights, alarm, 0, bonnet, boot, objective);
+			}
+		}
+	}	
+	else SendErrorMessage(playerid, "Você não está perto de nada que possa trancar.");
 	return 1;
 }

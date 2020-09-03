@@ -924,7 +924,7 @@ public OnBankAccountDeposit(playerid, amount)
 {
 	if(cache_affected_rows() > 0) {
 	    new string[64];
-	    format(string, sizeof(string), "BANCO: {FFFFFF}Deposito realizado com sucesso! Valor: {2ECC71}%s.", formatInt(amount));
+	    format(string, sizeof(string), "BANCO: {FFFFFF}Deposito realizado com sucesso! Valor: {2ECC71}%s", formatInt(amount));
 		SendClientMessage(playerid, 0x3498DBFF, string);
 
 	    GiveMoney(playerid, -amount);
@@ -942,7 +942,7 @@ public OnBankAccountWithdraw(playerid, amount)
 {
 	if(cache_affected_rows() > 0) {
 	    new string[64];
-	    format(string, sizeof(string), "BANCO: {FFFFFF}Saque realizado com sucesso! Valor: {2ECC71}%s.", formatInt(amount));
+	    format(string, sizeof(string), "BANCO: {FFFFFF}Saque realizado com sucesso! Valor: {2ECC71}%s", formatInt(amount));
 		SendClientMessage(playerid, 0x3498DBFF, string);
 
 	    GiveMoney(playerid, amount);
