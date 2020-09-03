@@ -13,7 +13,7 @@ CMD:animlist(playerid, params[])
             SendClientMessage(playerid, COLOR_ANIMS, "/bravo /mirar /gsign /animgang /cpr /rir /crossarms /deitar /acenar /relaxar /cair /machucado");
             SendClientMessage(playerid, COLOR_ANIMS, "/levartapa /convidar1 /convidar2 /arranhar /bomba /vomitar /comer /chuteporta /animrevistar");
             SendClientMessage(playerid, COLOR_ANIMS, "/beber /negociar /chat /fucku /taichi /chorar /carsit /alongar /chant /ghand /cansado");
-            SendClientMessage(playerid, COLOR_ANIMS, "/fumarnocarro /basquete /lancar /abrir /pcaixa /dcaixa /medo /fumar /spray /lean");
+            SendClientMessage(playerid, COLOR_ANIMS, "/fumarnocarro /basquete /lancar /empurrar /pcaixa /dcaixa /medo /fumar /spray /lean");
             SendClientMessage(playerid, COLOR_ANIMS, "/supino /dancar /rap /punheta /strip /sexy /bj /cotovelada /levantarguarda /gpunch");
             SendClientMessage(playerid, COLOR_ANIMS, "/airkick /gkick /dpunch /alevantar /animalgemar /rimando /eatsit /esquivar /segurar");
             SendClientMessage(playerid, COLOR_ANIMS, "/sinuca /gfunk /vadiar /box /revistacapo /observar /seguir /facepalm /cobrir ");
@@ -811,7 +811,7 @@ CMD:dcaixa(playerid, params[])
     return 1;
 }
 
-CMD:abrir(playerid, params[])
+CMD:empurrar(playerid, params[])
 {
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
     // if(PedMorto[playerid] > 0) return SendClientMessage(playerid, COLOR_LIGHTRED, "Você não pode utilizar este comando enquanto estiver morto!");

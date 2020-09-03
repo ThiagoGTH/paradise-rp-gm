@@ -60,7 +60,6 @@ new dInfo[MAX_DEALERS][WeapDealers];
 stock wf_OnGMInit()
 {
 	mysql_tquery(Database, "SELECT * FROM `dealers`", "LoadDealers", "");
-    printf("Fui chamado! [wep-1]");
 	return 1;
 }
 
@@ -260,7 +259,6 @@ forward LoadDealers();
 public LoadDealers()
 {
 	new t,string[55];
-    printf("Fui chamado! [wep-2]");
 	static 
 		rows;
 	cache_get_row_count(rows);
@@ -315,8 +313,8 @@ public LoadDealers()
 	   cache_get_value_name_int(i, "Ammo8", dInfo[t][Ammo8]);
 	   cache_get_value_name_int(i, "Ammo9", dInfo[t][Ammo9]);
 	   cache_get_value_name_int(i, "Ammo10", dInfo[t][Ammo10]);
-       printf("Fui chamado! [wep-3]");
     }
+	printf("FACTION SYSTEM: %d weapon factorys foram carregadas.", rows);
 	return 1;
 }
 

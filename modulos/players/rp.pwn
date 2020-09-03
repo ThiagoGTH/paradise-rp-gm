@@ -1,3 +1,53 @@
+CMD:horas(playerid, params[])
+{
+	static
+	    string[256],
+		month[12],
+		date[6];
+
+	getdate(date[2], date[1], date[0]);
+	gettime(date[3], date[4], date[5]);
+
+	switch (date[1]) {
+	    case 1: month = "Janeiro";
+	    case 2: month = "Fevereiro";
+	    case 3: month = "Março";
+	    case 4: month = "Abril";
+	    case 5: month = "Maio";
+	    case 6: month = "Junho";
+	    case 7: month = "Julho";
+	    case 8: month = "Agosto";
+	    case 9: month = "Setembro";
+	    case 10: month = "Outubro";
+	    case 11: month = "Novembro";
+	    case 12: month = "Dezembro";
+	}
+	format(string, sizeof(string), "SERVER: %d/60 minutos até o próximo PayDay.",PlayerInfo[playerid][pMinutes]);
+	SendClientMessage(playerid, COLOR_YELLOW, string);
+	if(PlayerInfo[playerid][pJailed] > 0)
+	{
+		SendServerMessage(playerid, "Você saíra da prisão daqui a %d minutos.", PlayerInfo[playerid][pJailedTime] / 60);
+	}
+	if (PlayerInfo[playerid][pJailTime] > 0)
+	{
+	    SendServerMessage(playerid, "Você saíra da prisão daqui a %d minutos.", PlayerInfo[playerid][pJailTime] / 60);
+	}
+
+	format(string, sizeof(string), "~g~%02d de %s %d~n~~b~%02d:%02d:%02d", date[0], month, date[2], date[3], date[4], date[5]);
+	GameTextForPlayer(playerid, string, 6000, 1);
+
+	return 1;
+}
+
+CMD:dado(playerid, params[])
+{
+	new
+		number = random(6) + 1;
+
+	SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "** %s joga um dado e ele cai no número %d.", pNome(playerid), number);
+	return 1;
+}
+
 CMD:ame(playerid, params[])  
 {
 	if(PlayerInfo[playerid][user_logged] == 0)
@@ -259,7 +309,7 @@ CMD:ajuda(playerid, params[])
 	    SendClientMessage(playerid, COLOR_WHITE, "COMANDOS UTEIS:");
     	SendClientMessage(playerid, COLOR_GRAD2, "[CHAT] /me /do /ame /ado /b /g /baixo /id /animlist /pm");
 		SendClientMessage(playerid, COLOR_GRAD2, "[GERAL] /tempo /consertarvw /limparmeuchat /mudarsenha /passararma");
-    	SendClientMessage(playerid, COLOR_GRAD2, "[GERAL] /pagar");
+    	SendClientMessage(playerid, COLOR_GRAD2, "[GERAL] /pagar /portao");
 		SendClientMessage(playerid, COLOR_YELLOW,"OUTROS: /ajuda tela, /ajuda veiculo, /ajuda facção, /ajuda casa");
 	    if(PlayerInfo[playerid][user_admin] >= 1)
 		{
@@ -302,6 +352,7 @@ CMD:ajuda(playerid, params[])
 		SendClientMessage(playerid, COLOR_WHITE,"PROPERTY TEAM:");
 		SendClientMessage(playerid, COLOR_GRAD2, "COMANDOS: /criarentrada, /destruirentrada, /editarentrada");
 		SendClientMessage(playerid, COLOR_GRAD2, "COMANDOS: /criarcasa, /destruircasa, /editarcasa, /resetarcasa");
+		SendClientMessage(playerid, COLOR_GRAD2, "COMANDOS: /criarportao, /editarportao");
 	}
 	else if(strcmp(option, "facção", true) == 0)
 	{
@@ -315,7 +366,7 @@ CMD:ajuda(playerid, params[])
 
 			if (GetFactionType(playerid) == FACTION_POLICE) {
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /dep, /sirene, /callsign, /m, /arrastar, /prender, /algemar, /desalgemar, /deter");
-				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /abrircela, /taser, /beanbag");
+				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /abrircela, /taser, /beanbag, /colocarobjeto, /editarobjeto,");
 			}
 			else if (GetFactionType(playerid) == FACTION_NEWS) {
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /callsign");
@@ -324,7 +375,8 @@ CMD:ajuda(playerid, params[])
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /dep, /callsign, /m");
 			}
 			else if (GetFactionType(playerid) == FACTION_GOV) {
-				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /dep, /cofresacar, /cofredepositar, /callsign");
+				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /dep, /cofresacar, /cofredepositar, /callsign, /colocarobjeto, /editarobjeto");
+				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /removerobjeto");
 			}
 			else if (GetFactionType(playerid) == FACTION_GANG) {
 				SendClientMessage(playerid, COLOR_CLIENT, "FACÇÃO: /pichar, /wf, /materiais");

@@ -277,17 +277,17 @@ CMD:aa(playerid)
 	if(PlayerInfo[playerid][user_admin] >= 1)
 	{
      	strcat(MEGAString, "[Tester] /atrabalho /trocarvw /trocarinterior /infoplayer /ir /ban /baninfo /spec /specoff /ajail /unajail /presos\n");
-		strcat(MEGAString, "[Tester] /tapa /userforum /ultimoatirador /checkrt /chatkill /aremovercallsign /reviver\n\n");
+		strcat(MEGAString, "[Tester] /tapa /userforum /ultimoatirador /checkrt /chatkill /aremovercallsign /reviver /destruirobjeto\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 2)
 	{
 		strcat(MEGAString, "[Game Admin] /ooc /reclife /limparchat /congelar /descongelar /oban /ajailoff /listaarmas /trazercarro\n");
-		strcat(MEGAString, "[Game Admin] /respawncarcarro /respawnarcarros /respawnarperto\n\n");
+		strcat(MEGAString, "[Game Admin] /respawncarcarro /respawnarcarros /respawnarperto /checkstats\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 3)
 	{
 		strcat(MEGAString, "[Senior Admin] /setskin /clima /desbanir /setcustomskin /entrarcarro /areparo /curartodos /pegarip\n");
-		strcat(MEGAString, "[Senior Admin] /darvida /darcolete /resetararmas /perte\n\n");
+		strcat(MEGAString, "[Senior Admin] /darvida /darcolete /resetararmas /perto\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 4)
 	{
@@ -833,18 +833,6 @@ CMD:presos(playerid, params[])
 	if(count == 0) return SendClientMessage(playerid, COLOR_GREY, "SERVER: Não há jogadores presos administrativamente no momento.");
 	return 1;
 }
-CMD:tempo(playerid, params[])
-{
-	new string[258];
-	if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
-	if(PlayerInfo[playerid][pJailed] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "ERRO: Você não está em nenhuma prisão.");
-	if(PlayerInfo[playerid][pJailed] > 0)
-	{
-		format(string, sizeof(string), "SERVER: Você saíra da prisão administrativa daqui a %i minutos.", PlayerInfo[playerid][pJailedTime] / 60);
-		SendClientMessage(playerid, COLOR_YELLOW, string);
-	}
-	return 1;
-}
 
 CMD:ajail(playerid, params[])
 {
@@ -971,7 +959,7 @@ CMD:ir(playerid, params[])
 	if (sscanf(params, "u", id))
  	{
 	 	SendSyntaxMessage(playerid, "/ir [player ou nome]");
-		SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa");
+		SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa, objeto");
 		return 1;
 	}
     if (id == INVALID_PLAYER_ID)
@@ -979,7 +967,7 @@ CMD:ir(playerid, params[])
 	    if (sscanf(params, "s[24]S()[64]", type, string))
 		{
 		    SendSyntaxMessage(playerid, "/ir [player ou nome]");
-			SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa");
+			SendClientMessage(playerid, -1, "NOMES: pos, carro, pichação, prisão, interior, entrada, casa, objeto");
 			return 1;
 	    }
 
@@ -1064,6 +1052,23 @@ CMD:ir(playerid, params[])
 			SetPlayerVirtualWorld(playerid, 0);
 
 	       	return SendServerMessage(playerid, "Você se teleportou para a pichação.");
+		}
+
+		if (!strcmp(type, "objeto", true)) 
+		{
+			if (sscanf(string, "d", id))
+				return SendSyntaxMessage(playerid, "/ir objeto [objeto id]");
+
+			if(!(0 <= id <= MAX_COP_OBJECTS - 1))
+				return SendErrorMessage(playerid, "Você especificou um objeto inválido.");
+
+			if(!CopObjectData[id][ObjCreated]) return SendErrorMessage(playerid, "Você especificou um objeto inexistente.");
+
+			SetPlayerPos(playerid, CopObjectData[id][ObjX], CopObjectData[id][ObjY], CopObjectData[id][ObjZ] + 1.75);
+			SetPlayerInterior(playerid, CopObjectData[id][ObjInterior]);
+			SetPlayerVirtualWorld(playerid, CopObjectData[id][ObjVirtualWorld]);
+
+	       	return SendServerMessage(playerid, "Você se teleportou para o objeto.");
 		}
 
 		if (!strcmp(type, "prisão", true)) 
@@ -1700,9 +1705,12 @@ CMD:perto(playerid, params[])
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
 	if(PlayerInfo[playerid][user_admin] < 3) return SendClientMessage(playerid, COLOR_GREY, "Você não possui autorização para utilizar esse comando.");
 	
-	/*if ((id = House_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near house ID: %d.", id);
+	if ((id = House_Nearest(playerid)) != -1)
+	    SendServerMessage(playerid, "Você está perto da casa ID: %d.", id);
 
+	if ((id = Gate_Nearest(playerid)) != -1)
+	    SendServerMessage(playerid, "Você está perto do portão ID: %d.", id);
+	/*
     if ((id = Business_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "You are standing near business ID: %d.", id);*/
 
@@ -1720,13 +1728,13 @@ CMD:perto(playerid, params[])
 
     if ((id = Crate_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "You are standing near crate ID: %d.", id);
+*/
+    if ((id = IsPlayerNearBanker(playerid)) != -1)
+	    SendServerMessage(playerid, "Você está perto do banco ID: %d.", id);
 
-    if ((id = Gate_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near gate ID: %d.", id);
-
-    if ((id = ATM_Nearest(playerid)) != -1)
-	    SendServerMessage(playerid, "You are standing near ATM ID: %d.", id);
-
+    if ((id = GetClosestATM(playerid)) != -1)
+	    SendServerMessage(playerid, "Você está perto do ATM ID: %d.", id);
+/*
     if ((id = Garbage_Nearest(playerid)) != -1)
 	    SendServerMessage(playerid, "You are standing near garbage bin ID: %d.", id);
 

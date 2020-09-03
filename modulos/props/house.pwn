@@ -702,7 +702,7 @@ stock UpdateHouseLabel(id)
 		format(label, sizeof(label), "{2ECC71}CASA A VENDA (ID: %d)\n{FFFFFF}Valor: {2ECC71}$%s\n{FFFFFF}/comprarcasa", id, convertNumber(HouseData[id][Price]));
 	}else{
 		if(HouseData[id][SalePrice] > 0) {
-            format(label, sizeof(label), "{2ECC71}CASA EM REVENDA (ID: %d)\n{FFFFFF}Valor: {2ECC71}$%s\n{FFFFFF}/comprarcasa", id, convertNumber(HouseData[id][Price]));
+            format(label, sizeof(label), "{2ECC71}CASA EM REVENDA (ID: %d)\n{FFFFFF}Valor: {2ECC71}$%s\n{FFFFFF}/comprarcasa", id, convertNumber(HouseData[id][SalePrice]));
 		   // format(label, sizeof(label), "{E67E22}%s's House For Sale (ID: %d)\n{FFFFFF}%s\n{FFFFFF}%s\n{F1C40F}Price: {2ECC71}$%s", HouseData[id][Owner], id, HouseData[id][Name], HouseInteriors[ HouseData[id][Interior] ][IntName], convertNumber(HouseData[id][SalePrice]));
 		}else{
 			format(label, sizeof(label), "{FFFFFF}CASA ID: %d\n{FFFFFF}%s\n\n{FFFFFF}Endereço: %s", id, HouseData[id][Name], HouseData[id][Address]);
@@ -793,8 +793,7 @@ public LoadHouses()
 			Iter_Add(Houses, id);
 		    loaded++;
 	    }
-
-	    printf("HOUSE SYSTEM: %d casas foram carregadas.", loaded);
+		printf("PROPERTY SYSTEM: %d casas foram carregadas.", loaded);
 	}
 
 	return 1;
@@ -830,8 +829,7 @@ public LoadFurnitures()
 			Streamer_SetArrayData(STREAMER_TYPE_OBJECT, id, E_STREAMER_EXTRA_ID, data);
    			loaded++;
  		}
-
- 		printf("HOUSE SYSTEM: %d mobílias foram carregadas.", loaded);
+		printf("PROPERTY SYSTEM: %d mobílias foram carregadas.", loaded);
    	}
 
 	return 1;
@@ -1166,8 +1164,8 @@ stock house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]
         if(id == INVALID_HOUSE_ID) return SendErrorMessage(playerid, "Você não está em uma casa.");
 		if(strcmp(HouseData[id][Owner], Player_GetName(playerid))) return SendErrorMessage(playerid, "Você não é o proprietário desta casa.");
 		if(HouseData[id][SalePrice] > 0) return SendErrorMessage(playerid, "Você não pode fazer isso enquanto sua casa estiver à venda.");
-		if(listitem == 0) ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Safe: Take Money", "Write the amount you want to take from safe:", "Take", "Back");
-		if(listitem == 1) ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "Safe: Put Money", "Write the amount you want to put to safe:", "Put", "Back");
+		if(listitem == 0) ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Cofre: PEGAR DINHEIRO", "Digite quanto você quer retirar do cofre:", "Pegar", "Voltar");
+		if(listitem == 1) ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "COFRE: COLOCAR DINHEIRO", "Digite o quanto você deseja colocar em seu cofre:", "Colocar", "Voltar");
         if(listitem == 2)
         {
 			ListPage[playerid] = 0;
@@ -1215,14 +1213,15 @@ stock house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]
 		if(strcmp(HouseData[id][Owner], Player_GetName(playerid))) return SendErrorMessage(playerid, "Você não é o proprietário desta casa.");
 		if(HouseData[id][SalePrice] > 0) return SendErrorMessage(playerid, "Você não pode fazer isso enquanto sua casa estiver à venda.");
         new amount = strval(inputtext);
-		if(!(1 <= amount <= 10000000)) return ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Safe: Take Money", "Write the amount you want to take from safe:\n\n{E74C3C}Invalid amount. You can take between $1 - $10,000,000 at a time.", "Take", "Back");
-		if(amount > HouseData[id][SafeMoney]) return ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Safe: Take Money", "Write the amount you want to take from safe:\n\n{E74C3C}You don't have that much money in your safe.", "Take", "Back");
+		if(!(1 <= amount <= 10000000)) return ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Cofre: PEGAR DINHEIRO", "Digite quanto você quer retirar do cofre:\n\n{E74C3C}Quantidade inválida. Você só pode retirar entre $1 e $10,000,000 por vez.", "Pegar", "Voltar");
+		if(amount > HouseData[id][SafeMoney]) return ShowPlayerDialog(playerid, DIALOG_SAFE_TAKE, DIALOG_STYLE_INPUT, "Cofre: PEGAR DINHEIRO", "Digite quanto você quer retirar do cofre:\n\n{E74C3C}Você não tem tudo isso em seu cofre.", "Pegar", "Voltar");
         new query[128];
 		mysql_format(Database, query, sizeof(query), "INSERT INTO housesafelogs SET HouseID=%d, Type=0, Amount=%d, Date=UNIX_TIMESTAMP()", id, amount);
 		mysql_tquery(Database, query, "", "");
 
 		GiveMoney(playerid, amount);
 		HouseData[id][SafeMoney] -= amount;
+		SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "* %s retira $%s de dentro do cofre da casa.", pNome(playerid), FormatNumber(amount));
 		HouseData[id][Save] = true;
 		ShowHouseMenu(playerid);
 	    return 1;
@@ -1235,14 +1234,15 @@ stock house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]
         if(id == INVALID_HOUSE_ID) return SendErrorMessage(playerid, "Você não está em uma casa.");
 		if(strcmp(HouseData[id][Owner], Player_GetName(playerid))) return SendErrorMessage(playerid, "Você não é o proprietário desta casa.");
         new amount = strval(inputtext);
-		if(!(1 <= amount <= 10000000)) return ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "Safe: Put Money", "Write the amount you want to put to safe:\n\n{E74C3C}Invalid amount. You can put between $1 - $10,000,000 at a time.", "Put", "Back");
-		if(amount > GetPlayerMoney(playerid)) return ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "Safe: Put Money", "Write the amount you want to put to safe:\n\n{E74C3C}You don't have that much money on you.", "Put", "Back");
+		if(!(1 <= amount <= 10000000)) return ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "COFRE: COLOCAR DINHEIRO", "Digite o quanto você deseja colocar em seu cofre:\n\n{E74C3C}Quantidade inválida. Você só pode colocar entre $1 e $10,000,000 por vez.", "Colocar", "Voltar");
+		if(amount > GetPlayerMoney(playerid)) return ShowPlayerDialog(playerid, DIALOG_SAFE_PUT, DIALOG_STYLE_INPUT, "COFRE: COLOCAR DINHEIRO", "Digite o quanto você deseja colocar em seu cofre:\n\n{E74C3C}Você não possui todo esse dinheiro em mãos.", "Colocar", "Voltar");
         new query[128];
 		mysql_format(Database, query, sizeof(query), "INSERT INTO housesafelogs SET HouseID=%d, Type=1, Amount=%d, Date=UNIX_TIMESTAMP()", id, amount);
 		mysql_tquery(Database, query, "", "");
 
 		GiveMoney(playerid, -amount);
 		HouseData[id][SafeMoney] += amount;
+		SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "* %s coloca $%s dentro do cofre da casa.", pNome(playerid), FormatNumber(amount));
 		HouseData[id][Save] = true;
 		ShowHouseMenu(playerid);
 	    return 1;
@@ -1309,12 +1309,13 @@ stock house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]
 
   			GetWeaponName(weaponid, weapname, sizeof(weapname));
   			GivePlayerWeapon(playerid, weaponid, ammo);
-			format(string, sizeof(string), "You've taken a %s from your house.", weapname);
+			format(string, sizeof(string), "SERVER: Você pegou um(a) %s de sua casa.", weapname);
 			SendClientMessage(playerid, 0xFFFFFFFF, string);
+			SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "* %s tira um(a) %s de dentro do armazenamento da casa.", pNome(playerid), weapname);
 			mysql_format(Database, query, sizeof(query), "DELETE FROM houseguns WHERE HouseID=%d AND WeaponID=%d", id, weaponid);
 			mysql_tquery(Database, query, "", "");
 		}else{
-			SendErrorMessage(playerid, "Can't find that weapon.");
+			SendErrorMessage(playerid, "Não foi possível achar essa arma.");
 		}
 
 		cache_delete(weapon);
@@ -1896,8 +1897,8 @@ CMD:comprarcasa(playerid, params[])
 	
 	if ((id = House_Nearest(playerid)) != -1)
 	{
-		if(InHouse[playerid] == INVALID_HOUSE_ID)
-		{        
+		/*if(InHouse[playerid] == INVALID_HOUSE_ID)
+		{  */      
             if(!strcmp(HouseData[id][Owner], "-")) 
             {
                 new string[64];
@@ -1914,7 +1915,7 @@ CMD:comprarcasa(playerid, params[])
 					    
             }
 		    return 1;
-        }
+        //}
 	}
     return 1;
 }
@@ -2003,7 +2004,7 @@ CMD:criarcasa(playerid, params[])
 
 	new interior, price;
 	if(sscanf(params, "ii", price, interior)) return SendErrorMessage(playerid, "/criarcasa [valor] [interior id]");
-    if(!(0 <= interior <= sizeof(HouseInteriors)-1)) return SendErrorMessage(playerid, "O ID do interior inserido é inválido.");
+    if(!(0 <= interior <= sizeof(HouseInteriors)-1)) return SendErrorMessage(playerid, "O interior deve ser entre 0 a 8.");
 	new id = Iter_Free(Houses);
 	if(id == -1) return SendServerMessage(playerid, "O servidor chegou ao limite de casas.");
 	//SetPVarInt(playerid, "HousePickupCooldown", gettime() + HOUSE_COOLDOWN);

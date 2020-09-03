@@ -1275,7 +1275,6 @@ stock fac_OnGMInit()
 {
 	mysql_tquery(Database, "SELECT * FROM `factions`", "Faction_Load", "");
 	mysql_tquery(Database, "SELECT * FROM `graffiti`", "Graffiti_Load", "");
-	printf("fui chamado! [0]");
 	return 1;
 }
 forward Faction_Load();
@@ -1284,7 +1283,6 @@ public Faction_Load()
 	static
 	    rows,
 		str[32];
-	printf("fui chamado! [1]");
 	cache_get_row_count(rows);
 
 	for (new i = 0; i < rows; i ++) if (i < MAX_FACTIONS)
@@ -1328,9 +1326,9 @@ public Faction_Load()
 
 		    cache_get_value_name(i, str, FactionRanks[i][j], 32);
 		}
-		printf("fui chamado! [2]");
 		Faction_Refresh(i);
 	}
+	printf("FACTION SYSTEM: %d facções foram carregadas.", rows);
 	return 1;
 }
 
@@ -2197,7 +2195,6 @@ public Graffiti_Load()
 	    rows;
 
 	cache_get_row_count(rows);
-	printf("fui chamado! [graffiti1]");
 	for (new i = 0; i < rows; i ++) if (i < MAX_GRAFFITI_POINTS)
 	{
 	    cache_get_field_name(i, "graffitiText", GraffitiData[i][graffitiText]);
@@ -2211,7 +2208,6 @@ public Graffiti_Load()
 	    cache_get_value_name_float(i, "graffitiZ", GraffitiData[i][graffitiPos][2]);
 	    cache_get_value_name_float(i, "graffitiAngle", GraffitiData[i][graffitiPos][3]);
 	    cache_get_value_name_int(i, "graffitiColor", GraffitiData[i][graffitiColor]);
-		printf("fui chamado! [graffiti2]");
 		Graffiti_Refresh(i);
 	}
 	return 1;

@@ -491,8 +491,7 @@ forward Entrance_Load();
 public Entrance_Load()
 {
     static
-	    rows;
-
+	    rows; 
     cache_get_row_count(rows);
 
 	for (new i = 0; i < rows; i ++) if (i < MAX_ENTRANCES)
@@ -520,11 +519,9 @@ public Entrance_Load()
 	    cache_get_value_name_int(i, "entranceCustom", EntranceData[i][entranceCustom]);
 	    cache_get_value_name_int(i, "entranceWorld", EntranceData[i][entranceWorld]);
 
-		/*if (EntranceData[i][entranceType] == 3)
-		    CreateForklifts(i);*/
-
 	    Entrance_Refresh(i);
 	}
+	printf("PROPERTY SYSTEM: %d entradas foram carregadas.", rows);
 	return 1;
 }
 
@@ -559,46 +556,45 @@ Entrance_Delete(entranceid)
 Entrance_Save(entranceid)
 {
 	static
-	    query[1024];
-
+	    query[2048];
 	mysql_format(Database, query, sizeof(query), "UPDATE `entrances` SET \
-    `entranceName` = '%s', \
-    `entrancePass` = '%s', \
-    `entranceIcon` = '%d', \
-    `entranceLocked` = '%d', \
-    `entrancePosX` = '%.4f', \
-    `entrancePosY` = '%.4f', \
-    `entrancePosZ` = '%.4f', \
-    `entrancePosA` = '%.4f', \
-    `entranceIntX` = '%.4f', \
-    `entranceIntY` = '%.4f', \
-    `entranceIntZ` = '%.4f', \
-    `entranceIntA` = '%.4f', \
-    `entranceInterior` = '%d', \
-    `entranceExterior` = '%d', \
-    `entranceExteriorVW` = '%d', \
-    `entranceType` = '%d', \
-    `entranceCustom` = '%d', \
-    `entranceWorld` = '%d' WHERE `entranceID` = '%d'",
-	EntranceData[entranceid][entranceName],
-	EntranceData[entranceid][entrancePass],
-	EntranceData[entranceid][entranceIcon],
-	EntranceData[entranceid][entranceLocked],
-	EntranceData[entranceid][entrancePos][0],
-	EntranceData[entranceid][entrancePos][1],
-	EntranceData[entranceid][entrancePos][2],
-	EntranceData[entranceid][entrancePos][3],
-	EntranceData[entranceid][entranceInt][0],
-	EntranceData[entranceid][entranceInt][1],
-	EntranceData[entranceid][entranceInt][2],
-	EntranceData[entranceid][entranceInt][3],
-	EntranceData[entranceid][entranceInterior],
-	EntranceData[entranceid][entranceExterior],
-	EntranceData[entranceid][entranceExteriorVW],
-	EntranceData[entranceid][entranceType],
-	EntranceData[entranceid][entranceCustom],
-	EntranceData[entranceid][entranceWorld],
-	EntranceData[entranceid][entranceID]);
+		`entranceName` = '%s', \
+		`entrancePass` = '%s', \
+		`entranceIcon` = '%d', \
+		`entranceLocked` = '%d', \
+		`entrancePosX` = '%.4f', \
+		`entrancePosY` = '%.4f', \
+		`entrancePosZ` = '%.4f', \
+		`entrancePosA` = '%.4f', \
+		`entranceIntX` = '%.4f', \
+		`entranceIntY` = '%.4f', \
+		`entranceIntZ` = '%.4f', \
+		`entranceIntA` = '%.4f', \
+		`entranceInterior` = '%d', \
+		`entranceExterior` = '%d', \
+		`entranceExteriorVW` = '%d', \
+		`entranceType` = '%d', \
+		`entranceCustom` = '%d', \
+		`entranceWorld` = '%d' WHERE `entranceID` = '%d'",
+		EntranceData[entranceid][entranceName],
+		EntranceData[entranceid][entrancePass],
+		EntranceData[entranceid][entranceIcon],
+		EntranceData[entranceid][entranceLocked],
+		EntranceData[entranceid][entrancePos][0],
+		EntranceData[entranceid][entrancePos][1],
+		EntranceData[entranceid][entrancePos][2],
+		EntranceData[entranceid][entrancePos][3],
+		EntranceData[entranceid][entranceInt][0],
+		EntranceData[entranceid][entranceInt][1],
+		EntranceData[entranceid][entranceInt][2],
+		EntranceData[entranceid][entranceInt][3],
+		EntranceData[entranceid][entranceInterior],
+		EntranceData[entranceid][entranceExterior],
+		EntranceData[entranceid][entranceExteriorVW],
+		EntranceData[entranceid][entranceType],
+		EntranceData[entranceid][entranceCustom],
+		EntranceData[entranceid][entranceWorld],
+		EntranceData[entranceid][entranceID]);
 	mysql_tquery(Database, query);
 }
 /*
@@ -678,8 +674,8 @@ Entrance_Refresh(entranceid)
 		if (IsValidDynamicMapIcon(EntranceData[entranceid][entranceMapIcon]))
 		    DestroyDynamicMapIcon(EntranceData[entranceid][entranceMapIcon]);
 
-		EntranceData[entranceid][entranceText3D] = CreateDynamic3DTextLabel(EntranceData[entranceid][entranceName], COLOR_DARKBLUE, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], 15.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 0, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
-        EntranceData[entranceid][entrancePickup] = CreateDynamicPickup(1239, 23, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2] + 0.7, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
+		EntranceData[entranceid][entranceText3D] = CreateDynamic3DTextLabel(EntranceData[entranceid][entranceName], -1, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], 15.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 0, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
+        EntranceData[entranceid][entrancePickup] = CreateDynamicPickup(1239, 23, EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
 
 		if (EntranceData[entranceid][entranceIcon] != 0)
 			EntranceData[entranceid][entranceMapIcon] = CreateDynamicMapIcon(EntranceData[entranceid][entrancePos][0], EntranceData[entranceid][entrancePos][1], EntranceData[entranceid][entrancePos][2], EntranceData[entranceid][entranceIcon], 0, EntranceData[entranceid][entranceExteriorVW], EntranceData[entranceid][entranceExterior]);
@@ -694,40 +690,42 @@ Entrance_Create(playerid, name[])
 	    Float:y,
 	    Float:z,
 	    Float:angle;
-
+	new query[256];
     if (GetPlayerPos(playerid, x, y, z) && GetPlayerFacingAngle(playerid, angle))
 	{
-		for (new i = 0; i != MAX_ENTRANCES; i ++)
+		for (new i = 0; i != MAX_ENTRANCES; i ++) if (!EntranceData[i][entranceExists])
 		{
-	    	if (!EntranceData[i][entranceExists])
-		    {
-    	        EntranceData[i][entranceExists] = true;
-        	    EntranceData[i][entranceIcon] = 0;
-        	    EntranceData[i][entranceType] = 0;
-        	    EntranceData[i][entranceCustom] = 0;
-        	    EntranceData[i][entranceLocked] = 0;
+			format(EntranceData[i][entranceName], 32, name);
+    	    EntranceData[i][entranceExists] = true;
+        	EntranceData[i][entranceIcon] = 0;
+        	EntranceData[i][entranceType] = 0;
+        	EntranceData[i][entranceCustom] = 0;
+        	EntranceData[i][entranceLocked] = 0;
 
-				format(EntranceData[i][entranceName], 32, name);
-				EntranceData[i][entrancePass][0] = 0;
+			//EntranceData[i][entranceName] = name;
+			EntranceData[i][entrancePass][0] = 0;
 
-    	        EntranceData[i][entrancePos][0] = x;
-    	        EntranceData[i][entrancePos][1] = y;
-    	        EntranceData[i][entrancePos][2] = z;
-    	        EntranceData[i][entrancePos][3] = angle;
+    	    EntranceData[i][entrancePos][0] = x;
+    	    EntranceData[i][entrancePos][1] = y;
+    	    EntranceData[i][entrancePos][2] = z;
+    	    EntranceData[i][entrancePos][3] = angle;
 
-                EntranceData[i][entranceInt][0] = x;
-                EntranceData[i][entranceInt][1] = y;
-                EntranceData[i][entranceInt][2] = z + 10000;
-                EntranceData[i][entranceInt][3] = 0.0000;
+            EntranceData[i][entranceInt][0] = x;
+            EntranceData[i][entranceInt][1] = y;
+            EntranceData[i][entranceInt][2] = z + 10000;
+            EntranceData[i][entranceInt][3] = 0.0000;
 
-				EntranceData[i][entranceInterior] = 0;
-				EntranceData[i][entranceExterior] = GetPlayerInterior(playerid);
-				EntranceData[i][entranceExteriorVW] = GetPlayerVirtualWorld(playerid);
+			EntranceData[i][entranceInterior] = 0;
+			EntranceData[i][entranceExterior] = GetPlayerInterior(playerid);
+			EntranceData[i][entranceExteriorVW] = GetPlayerVirtualWorld(playerid);
 
-				Entrance_Refresh(i);
-				mysql_tquery(Database, "INSERT INTO `entrances` (`entranceType`) VALUES(0)", "OnEntranceCreated", "d", i);
-				return i;
-			}
+			Entrance_Refresh(i);
+			mysql_format(Database, query, sizeof(query), "INSERT INTO `entrances` (`entranceName`)\
+			VALUES ('%e')", name);
+			mysql_tquery(Database, query, "OnEntranceCreated", "d", i);
+
+			//mysql_tquery(Database, "INSERT INTO `entrances` (`entranceType`) VALUES(0)", "OnEntranceCreated", "d", i);
+			return i;
 		}
 	}
 	return -1;
@@ -744,12 +742,15 @@ stock GetEntranceByID(sqlid)
 forward OnEntranceCreated(entranceid);
 public OnEntranceCreated(entranceid)
 {
+	new query[90];
 	if (entranceid == -1 || !EntranceData[entranceid][entranceExists])
 	    return 0;
 
 	EntranceData[entranceid][entranceID] = cache_insert_id();
 	EntranceData[entranceid][entranceWorld] = EntranceData[entranceid][entranceID] + 7000;
 
+	mysql_format(Database, query, sizeof(query), "SELECT * FROM entrances WHERE entranceID='%i'", EntranceData[entranceid][entranceID]); // Seleciona todas as informações desse player AONDE o id dele é o id dele
+	mysql_query(Database, query); 
 	Entrance_Save(entranceid);
 
 	return 1;
@@ -757,7 +758,7 @@ public OnEntranceCreated(entranceid)
 
 stock ent_OnGMinit()
 {
-    mysql_tquery(Database, "SELECT * FROM `entrances`", "Entrance_Load", " ");
+    mysql_tquery(Database, "SELECT * FROM `entrances`", "Entrance_Load", "");
     return 1;
 }
 
@@ -852,17 +853,15 @@ CMD:editarentrada(playerid, params[])
 
 		EntranceData[id][entranceInterior] = GetPlayerInterior(playerid);
 
-        foreach (new i : Player)
+		if (PlayerInfo[playerid][pEntrance] == EntranceData[id][entranceID])
 		{
-			if (PlayerInfo[i][pEntrance] == EntranceData[id][entranceID])
-			{
-				SetPlayerPos(i, EntranceData[id][entranceInt][0], EntranceData[id][entranceInt][1], EntranceData[id][entranceInt][2]);
-				SetPlayerFacingAngle(i, EntranceData[id][entranceInt][3]);
+			SetPlayerPos(playerid, EntranceData[id][entranceInt][0], EntranceData[id][entranceInt][1], EntranceData[id][entranceInt][2]);
+			SetPlayerFacingAngle(playerid, EntranceData[id][entranceInt][3]);
 
-				SetPlayerInterior(i, EntranceData[id][entranceInterior]);
-				SetCameraBehindPlayer(i);
-			}
+			SetPlayerInterior(playerid, EntranceData[id][entranceInterior]);
+			SetCameraBehindPlayer(playerid);
 		}
+
 		Entrance_Save(id);
 		SendAdminAlert(COLOR_LIGHTRED, "%s alterou o interior da entrada ID: %d.", pNome(playerid), id);
 	}
@@ -916,7 +915,7 @@ CMD:editarentrada(playerid, params[])
 	    Entrance_Refresh(id);
 	    Entrance_Save(id);
 
-		SendAdminAlert(COLOR_LIGHTRED, "%s editou o mpaicon da entrada ID: %d para %d.", pNome(playerid), id, icon);
+		SendAdminAlert(COLOR_LIGHTRED, "%s editou o mapicon da entrada ID: %d para %d.", pNome(playerid), id, icon);
 	}
 	else if (!strcmp(type, "senha", true))
 	{
@@ -974,7 +973,7 @@ CMD:editarentrada(playerid, params[])
 	    if (sscanf(string, "d", typeint))
 	    {
 	        SendSyntaxMessage(playerid, "/editarentrada [id] [tipo] [syntax]");
-			SendClientMessage(playerid, COLOR_YELLOW, "SYNTAXES: {FFFFFF} 0: Nenhum | 1: DMV | 2: Banco | 3: Warehouse | 4: City Hall | 5: Estande de tiro");
+			SendClientMessage(playerid, -1, "SYNTAXES: 0: Nenhum | 1: DMV | 2: Banco | 3: Warehouse | 4: City Hall | 5: Estande de tiro");
 			return 1;
 		}
 		if (typeint < 0 || typeint > 5)
@@ -1025,17 +1024,16 @@ CMD:editarentrada(playerid, params[])
 				EntranceData[id][entranceInterior] = 7;
 			}
 		}
-		foreach (new i : Player)
-		{
-			if (PlayerInfo[i][pEntrance] == EntranceData[id][entranceID])
-			{
-				SetPlayerPos(i, EntranceData[id][entranceInt][0], EntranceData[id][entranceInt][1], EntranceData[id][entranceInt][2]);
-				SetPlayerFacingAngle(i, EntranceData[id][entranceInt][3]);
 
-				SetPlayerInterior(i, EntranceData[id][entranceInterior]);
-				SetCameraBehindPlayer(i);
-			}
+		if (PlayerInfo[playerid][pEntrance] == EntranceData[id][entranceID])
+		{
+			SetPlayerPos(playerid, EntranceData[id][entranceInt][0], EntranceData[id][entranceInt][1], EntranceData[id][entranceInt][2]);
+			SetPlayerFacingAngle(playerid, EntranceData[id][entranceInt][3]);
+
+			SetPlayerInterior(playerid, EntranceData[id][entranceInterior]);
+			SetCameraBehindPlayer(playerid);
 		}
+
 	    Entrance_Save(id);
 		SendAdminAlert(COLOR_LIGHTRED, "%s alterou o tipo de entrada ID: %d para %d.", pNome(playerid), id, typeint);
 	}
@@ -1068,7 +1066,10 @@ CMD:entrar(playerid, params[])
 {
     static
 		id = -1;
-	
+
+	if(IsPlayerInAnyVehicle(playerid))
+		return SendErrorMessage(playerid, "Você não pode utilizar esse comando agora!");
+
 	if ((id = House_Nearest(playerid)) != -1)
 	{
 		if(InHouse[playerid] == INVALID_HOUSE_ID)
@@ -1102,16 +1103,6 @@ CMD:entrar(playerid, params[])
 		}
 		return 1;
 	}
-	
-	if ((id = House_NearestInt(playerid)) != -1)
-	{
-		// SetPVarInt(playerid, "HousePickupCooldown", gettime() + HOUSE_COOLDOWN);
-		SetPlayerVirtualWorld(playerid, 0);
-		SetPlayerInterior(playerid, 0);
-		SetPlayerPos(playerid, HouseData[ InHouse[playerid] ][houseX], HouseData[ InHouse[playerid] ][houseY], HouseData[ InHouse[playerid] ][houseZ]);
-		InHouse[playerid] = INVALID_HOUSE_ID;
-		return 1;
-	}
 
     if ((id = Entrance_Nearest(playerid)) != -1)
 	{
@@ -1133,6 +1124,27 @@ CMD:entrar(playerid, params[])
 		PlayerInfo[playerid][pEntrance] = EntranceData[id][entranceID];
 		return 1;
 	}
+    return 1;
+}
+
+CMD:sair(playerid, params[])
+{
+	static
+		id = -1;
+
+	if(IsPlayerInAnyVehicle(playerid))
+		return SendErrorMessage(playerid, "Você não pode utilizar esse comando agora!");
+
+	if ((id = House_NearestInt(playerid)) != -1)
+	{
+		// SetPVarInt(playerid, "HousePickupCooldown", gettime() + HOUSE_COOLDOWN);
+		SetPlayerVirtualWorld(playerid, 0);
+		SetPlayerInterior(playerid, 0);
+		SetPlayerPos(playerid, HouseData[ InHouse[playerid] ][houseX], HouseData[ InHouse[playerid] ][houseY], HouseData[ InHouse[playerid] ][houseZ]);
+		InHouse[playerid] = INVALID_HOUSE_ID;
+		return 1;
+	}
+
 	if ((id = Entrance_Inside(playerid)) != -1 && IsPlayerInRangeOfPoint(playerid, 2.5, EntranceData[id][entranceInt][0], EntranceData[id][entranceInt][1], EntranceData[id][entranceInt][2]))
 	{
 	    if (EntranceData[id][entranceCustom])
@@ -1150,10 +1162,8 @@ CMD:entrar(playerid, params[])
         PlayerInfo[playerid][pEntrance] = Entrance_GetLink(playerid);
 		return 1;
 	}
-    return 1;
+	return 1;
 }
-
-
 //#endinput
 
 CMD:trancar(playerid, params[])

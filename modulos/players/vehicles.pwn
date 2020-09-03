@@ -6,9 +6,9 @@ enum coreVehicles {
 	vehSirenObject,
 };
 new CoreVehicles[MAX_VEHICLES][coreVehicles];
-#define MAX_DYNAMIC_CARS (1500)
+//#define MAX_DYNAMIC_CARS (1500)
 new vehiclecallsign[MAX_VEHICLES];
-
+/*
 enum carData {
 	carID,
 	carExists,
@@ -28,7 +28,7 @@ enum carData {
 	carVehicle
 };
 new CarData[MAX_DYNAMIC_CARS][carData];
-
+*/
 CMD:destruircarro(playerid, params[])
 {
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
@@ -158,7 +158,7 @@ CMD:luzes(playerid, params[])
 	    case false:
 	    {
 	        SetLightStatus(vehicleid, true);
-            GameTextForPlayer(playerid,"~w~Luzes~g~ligadas~w~!",3000,4);
+            GameTextForPlayer(playerid,"~w~Luzes ~g~ligadas~w~!",3000,4);
 		}
 		case true:
 		{
@@ -697,7 +697,7 @@ stock GetVehicleFromBehind(vehicleid)
 	}
 	return INVALID_VEHICLE_ID;
 }
-
+/*
 stock Car_GetID(vehicleid)
 {
 	for (new i = 0; i != MAX_DYNAMIC_CARS; i ++) if (CarData[i][carExists] && CarData[i][carVehicle] == vehicleid) {
@@ -744,7 +744,7 @@ stock Car_Spawn(carid)
 		}
 	}
 	return 0;
-}
+}*/
 
 GetVehicleDriver(vehicleid) {
 	foreach (new i : Player) {
