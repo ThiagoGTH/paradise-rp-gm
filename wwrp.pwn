@@ -10,6 +10,8 @@
 #include <colandreas>
 #include <eSelection>
 #include <strlib>
+#include <sqlitei>
+#include <PreviewModelDialog>
 
 #define	BCRYPT_COST	12
 
@@ -22,7 +24,6 @@
 #define SERVER_URL	"www.paradise-roleplay.com"
 #define SERVER_REVISION	"P:RP v0.01-BETA"
 #define SERVER_LANGUAGE	"Brazilian Portuguese"
-#define SERVER_CITY 	 (1) // (1) Los Santos, (2) San Fierro, (3) Las Venturas
 
 #define Pasta_Logs          "Logs/%s.txt"
 
@@ -317,6 +318,13 @@ enum PlayerData
 	pFreeze,
 	pFreezeTimer,
 	pStunned,
+	pPlayingHours,
+	pMinutes,
+	pPaycheck,
+	Weaponed,
+	pCarSeller,
+	pCarOffered,
+	pCarValue,
 	user_logged,
 	Nome[MAX_PLAYER_NAME]
 };
@@ -409,10 +417,15 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/factions/fac.pwn"
 #include "../gamemodes/modulos/factions/wf.pwn"
 #include "../gamemodes/modulos/factions/arrest.pwn"
+#include "../gamemodes/modulos/factions/copobjects.pwn"
+#include "../gamemodes/modulos/factions/multas.pwn"
 
 // PROPERTY
 #include "../gamemodes/modulos/props/house.pwn"
 #include "../gamemodes/modulos/props/entrance.pwn"
+#include "../gamemodes/modulos/props/gates.pwn"
+#include "../gamemodes/modulos/props/bank.pwn"
+#include "../gamemodes/modulos/props/cars.pwn"
 
 // ADMIN
 #include "../gamemodes/modulos/admin/comandos.pwn"
@@ -426,11 +439,16 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/players/vehicles.pwn"
 #include "../gamemodes/modulos/players/screen.pwn"
 #include "../gamemodes/modulos/players/injured.pwn"
+#include "../gamemodes/modulos/players/damage.pwn"
+#include "../gamemodes/modulos/players/stats.pwn"
+#include "../gamemodes/modulos/players/savewep.pwn"
 
 // MAPAS
 #include "../gamemodes/modulos/mapas/customaps.pwn"
 #include "../gamemodes/modulos/mapas/prison.pwn"
 #include "../gamemodes/modulos/mapas/interiormap.pwn"
+//
+//#include "../gamemodes/modulos/sys/air.pwn"
 
 public OnGameModeInit()
 {
@@ -444,6 +462,7 @@ public OnGameModeInit()
 	}
 	SetTimer("JailRelease", 1000, true);
 	SetTimer("PlayerCheck", 1000, true);
+	SetTimer("MinuteCheck", 60000, true);
 
 	print("SERVER: Conexão com o MySQL bem sucedida.");
 
@@ -505,6 +524,9 @@ public OnGameModeInit()
 	wf_OnGMInit();
 	arrest_OnGameModeInit();
 	screen_OnGMInit();
+	gat_OnGMInit();
+	co_OnGMInit();
+	bank_OnGMInit();
 	Server_Load();
 	return 1;
 }
@@ -522,7 +544,10 @@ public OnGameModeExit()
 	Ovni_OnGameModeExit();
 	spec_OnGameModeExit();
 	house_OnGMExit();
-
+	gat_OnGMExit();
+	co_OnGMExit();
+	//air_OnGMExit();
+	bank_OnGMExit();
 	return 1;
 }
 
@@ -568,6 +593,10 @@ public OnPlayerConnect(playerid)
 	spec_OnPlayerConnect(playerid);
 	dc_OnPlayerConnect(playerid);
 	House_PlayerInit(playerid);
+	dmg_OnPlayerConnect(playerid);
+	gat_OnPlayerConnect(playerid);
+	co_OnPlayerConnect(playerid);
+	bank_OnPlayerConnect(playerid);
 	return 1;
 }
 public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
@@ -579,6 +608,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 public OnPlayerStateChange(playerid, newstate, oldstate)
 {
 	spec_OnPlayerStateChange(playerid, newstate);
+	cars_OnPlayerStateChange(playerid, newstate);
 	return 1;
 }
 public OnPlayerSpawn(playerid)
@@ -586,6 +616,7 @@ public OnPlayerSpawn(playerid)
 	spec_OnPlayerSpawn(playerid);
 	inj_OnPlayerSpawn(playerid);
 	house_OnPlayerSpawn(playerid);
+
 	return 1;
 }
 
@@ -611,6 +642,8 @@ public OnPlayerDisconnect(playerid, reason)
 	TerminateConnection(playerid);
 	spec_OnPlayerDisconnect(playerid);
 	dc_OnPlayerDisconnect(playerid);
+	gat_OnPlayerDisconnect(playerid);
+	//air_OnPlayerDisconnect(playerid);
 	return 1;
 }
 
@@ -680,36 +713,14 @@ public SaveAccount(playerid)
 	`Faction` = '%i', \
 	`FactionRank` = '%i', \
 	`Material` = '%i', \
-	`Guns1` = '%d', \
-	`Ammo1` = '%d', \
-	`Guns2` = '%d', \
-	`Ammo2` = '%d', \
-	`Guns3` = '%d', \
-	`Ammo3` = '%d', \
-	`Guns4` = '%d', \
-	`Ammo4` = '%d', \
-	`Guns5` = '%d', \
-	`Ammo5` = '%d', \
-	`Guns6` = '%d', \
-	`Ammo6` = '%d', \
-	`Guns7` = '%d', \
-	`Ammo7` = '%d', \
-	`Guns8` = '%d', \
-	`Ammo8` = '%d', \
-	`Guns9` = '%d', \
-	`Ammo9` = '%d', \
-	`Guns10` = '%d', \
-	`Ammo10` = '%d', \
-	`Guns11` = '%d', \
-	`Ammo11` = '%d', \
-	`Guns12` = '%d', \
-	`Ammo12` = '%d', \
-	`Guns13` = '%d', \
-	`Ammo13` = '%d', \
 	`JailTime` = '%d', \
 	`Prisoned` = '%d', \
 	`Entrance` = '%d', \
-	`House` = '%d' WHERE `ID` = '%i'",
+	`House` = '%d', \
+	`PlayingHours` = '%d', \
+	`Minutes` = '%d', \
+	`Paycheck` = '%i', \
+	`Weaponed` = '%d' WHERE `ID` = '%i'",
 	PlayerInfo[playerid][user_cash],
 	PlayerInfo[playerid][user_kills],
 	PlayerInfo[playerid][user_deaths],
@@ -733,48 +744,51 @@ public SaveAccount(playerid)
 	PlayerInfo[playerid][pFactionID],
 	PlayerInfo[playerid][pFactionRank],
 	PlayerInfo[playerid][pMaterial],
-	// GUNS
-	PlayerInfo[playerid][pGuns][0],
-	PlayerInfo[playerid][pAmmo][0],
-	PlayerInfo[playerid][pGuns][1],
-	PlayerInfo[playerid][pAmmo][1],
-	PlayerInfo[playerid][pGuns][2],
-	PlayerInfo[playerid][pAmmo][2],
-	PlayerInfo[playerid][pGuns][3],
-	PlayerInfo[playerid][pAmmo][3],
-	PlayerInfo[playerid][pGuns][4],
-	PlayerInfo[playerid][pAmmo][4],
-	PlayerInfo[playerid][pGuns][5],
-	PlayerInfo[playerid][pAmmo][5],
-	PlayerInfo[playerid][pGuns][6],
-	PlayerInfo[playerid][pAmmo][6],
-	PlayerInfo[playerid][pGuns][7],
-	PlayerInfo[playerid][pAmmo][7],
-	PlayerInfo[playerid][pGuns][8],
-	PlayerInfo[playerid][pAmmo][8],
-	PlayerInfo[playerid][pGuns][9],
-	PlayerInfo[playerid][pAmmo][9],
-	PlayerInfo[playerid][pGuns][10],
-	PlayerInfo[playerid][pAmmo][10],
-	PlayerInfo[playerid][pGuns][11],
-	PlayerInfo[playerid][pAmmo][11],
-	PlayerInfo[playerid][pGuns][12],
-	PlayerInfo[playerid][pAmmo][12],
-	//
 	PlayerInfo[playerid][pJailTime],
 	PlayerInfo[playerid][pPrisoned],
 	// PROPS
 	PlayerInfo[playerid][pHouse],
 	PlayerInfo[playerid][pEntrance],
+	//
+	PlayerInfo[playerid][pPlayingHours],
+	PlayerInfo[playerid][pMinutes],
+	PlayerInfo[playerid][pPaycheck],
+	PlayerInfo[playerid][Weaponed],
 	PlayerInfo[playerid][user_id]);
 	mysql_tquery(Database, query);
-
-	/*for (new i = 0; i < 13; i ++) {
-mysql_format(Database, query, sizeof(query), "%s, `Gun%d` = '%d',\
-`Ammo%d` = '%d'", query, i + 1, PlayerInfo[playerid][pGuns][i], i + 1, PlayerInfo[playerid][pAmmo][i]);
-	}*/
+	SaveWeaponsSQL(playerid);
 
 	printf("[MYSQL] Dados do jogador %s (ID: %d) foram salvos com sucesso.", pNome(playerid), PlayerInfo[playerid][user_id]);
+	return 1;
+}
+
+forward MinuteCheck();
+public MinuteCheck()
+{
+    foreach (new i : Player)
+	{
+	    if (!PlayerInfo[i][user_logged])
+	        continue;
+
+        PlayerInfo[i][pMinutes]++;
+
+        if (PlayerInfo[i][pMinutes] >= 60)
+       	{
+       	    new paycheck = random(100) + 100;
+
+        	PlayerInfo[i][pMinutes] = 0;
+
+			PlayerInfo[i][pPlayingHours]++;
+			PlayerInfo[i][pPaycheck] += paycheck;
+
+
+			SendClientMessageEx(i, COLOR_WHITE, "BANCO: Seu pagamento de {33CC33}%s{FFFFFF} foi recebido, retire-o em algum banco.", formatInt(paycheck));
+			return 1;
+		}
+
+        //SendClientMessageEx(i, COLOR_WHITE, "BANCO: Seu pagamento de {33CC33}%s{FFFFFF} foi recebido, retire-o em algum banco.", formatInt(paycheck));
+	}
+
 	return 1;
 }
 
@@ -782,6 +796,9 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 {
 	Graf_OnPEDObject(playerid, response, Float:x, Float:y, Float:z, Float:rz);
 	house_OnPEDObject(playerid, objectid, response, Float: x, Float: y, Float: z, Float: rx, Float: ry, Float: rz);
+	gat_OnPlayerEditDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz);
+	co_OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz);
+	bank_OnPlayerEditDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz);
 	return 1;
 }
 forward ZerarDados(playerid);
@@ -809,6 +826,10 @@ stock ZerarDados(playerid)
 	PlayerInfo[playerid][pJailTime] = 0;
 	PlayerInfo[playerid][pPrisoned] = 0;
 	PlayerInfo[playerid][pDragged] = 0;
+	PlayerInfo[playerid][pPlayingHours] = 0;
+	PlayerInfo[playerid][pMinutes] = 0;
+	PlayerInfo[playerid][pPaycheck] = 0;
+	PlayerInfo[playerid][Weaponed] = 0;
     PlayerInfo[playerid][pDraggedBy] = INVALID_PLAYER_ID;
 	PlayerInfo[playerid][pLastShot] = INVALID_PLAYER_ID;
 	PlayerInfo[playerid][pShotTime] = 0;
@@ -846,12 +867,11 @@ stock ZerarDados(playerid)
 	PlayerInfo[playerid][CurrentAmmo] = 0;
 	PlayerInfo[playerid][CurrentCost] = 0;
 
-	Injured[playerid] = 0;
+	PlayerInfo[playerid][pCarSeller] = INVALID_PLAYER_ID;
+	PlayerInfo[playerid][pCarOffered] = -1;
+	PlayerInfo[playerid][pCarValue] = 0;
 
-	for (new i = 0; i < 12; i ++) {
-		PlayerInfo[playerid][pGuns][i] = 0;
-		PlayerInfo[playerid][pAmmo][i] = 0;
-	}
+	Injured[playerid] = 0;
 
 	foreach (new i : Player) if (PlayerInfo[i][pDraggedBy] == playerid) {
 	    StopDragging(i);
@@ -859,6 +879,16 @@ stock ZerarDados(playerid)
 	if (PlayerInfo[playerid][pDragged]) {
 	    StopDragging(playerid);
 	}
+	for (new i = 0; i < 12; i ++) {
+		PlayerInfo[playerid][pGuns][i] = 0;
+		PlayerInfo[playerid][pAmmo][i] = 0;
+	}
+	for (new i = 0; i != MAX_PLAYER_TICKETS; i ++) {
+	    TicketData[playerid][i][ticketID] = 0;
+		TicketData[playerid][i][ticketExists] = false;
+		TicketData[playerid][i][ticketFee] = 0;
+	}
+
 }
 
 public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
@@ -872,6 +902,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
 		PlayerInfo[playerid][pLoopAnim] = false;
 	}
+	//air_OnPKSC(playerid, newkeys, oldkeys);
 	return 1;
 }
 
@@ -922,8 +953,6 @@ public OnPlayerText(playerid, text[])
 		SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
 		return 0;
 	}
-	/*format(string, sizeof(string), "%s diz: %s", pNome(playerid), text);
-SendClientMessageInRange(35.0, playerid, string, COLOR_FADE1,COLOR_FADE2,COLOR_FADE3,COLOR_FADE4,COLOR_FADE5);*/
 
 	if (IsPlayerInAnyVehicle(playerid) && IsWindowedVehicle(GetPlayerVehicleID(playerid)) && !CoreVehicles[GetPlayerVehicleID(playerid)][vehWindowsDown])
 	SendVehicleMessage(GetPlayerVehicleID(playerid), -1, "[Janelas Fechadas] %s diz: %s", pNome(playerid), text);
@@ -936,22 +965,24 @@ public OnPlayerDeath(playerid, killerid, reason)
 {
 	if(killerid != INVALID_PLAYER_ID)
 	{
-		new string[256];
+		//new string[256];
 		PlayerInfo[killerid][user_kills]++;
 
-		if (reason == 50 && killerid != INVALID_PLAYER_ID)
+		/*if (reason == 50 && killerid != INVALID_PLAYER_ID)
 		format(string, sizeof(string), "AdmCmd: %s matou %s utilizando um helicóptero.", pNome(killerid), pNome(playerid));
 		ABroadCast(COLOR_LIGHTRED, string, 1);
 
 
 		if (reason == 29 && killerid != INVALID_PLAYER_ID && GetPlayerState(killerid) == PLAYER_STATE_DRIVER)
 		format(string, sizeof(string), "AdmCmd: %s matou %s atropelado.", pNome(killerid), pNome(playerid));
-		ABroadCast(COLOR_LIGHTRED, string, 1);
+		ABroadCast(COLOR_LIGHTRED, string, 1);*/
 	}
 	PlayerInfo[playerid][user_deaths]++;
 
 	spec_OnPlayerDeath(playerid);
 	inj_OnPlayerDeath(playerid);
+	dmg_OnPlayerDeath(playerid);
+	//air_OnPlayerDeath(playerid);
 	return 1;
 }
 
@@ -1028,7 +1059,7 @@ public OnPasswordHashed(playerid)
 forward OnPlayerRegister(playerid);
 public OnPlayerRegister(playerid)
 {
-	new query[90];
+	new query[1080];
 
 	PlayerInfo[playerid][user_id] = cache_insert_id(); // Adiciona o id no player
 	printf("[MYSQL] Jogador %s registrado como ID %d", pNome(playerid), PlayerInfo[playerid][user_id]); // Apenas um debug, pra saber se deu tudo certo.
@@ -1090,7 +1121,6 @@ stock RecordData(playerid)
 {
 	PlayerInfo[playerid][user_skin] = 60;
 	PlayerInfo[playerid][user_score] = 1;
-	PlayerInfo[playerid][user_cash] = 500;
 	PlayerInfo[playerid][Vida] = 100;
 	PlayerInfo[playerid][Colete] = 0;
 	PlayerInfo[playerid][Interior] = 0;
@@ -1099,16 +1129,22 @@ stock RecordData(playerid)
 	PlayerInfo[playerid][pPosY] = -2335.0376;
 	PlayerInfo[playerid][pPosZ] = -2.6797;
 	PlayerInfo[playerid][pPosA] = 358.5789;
+	PlayerInfo[playerid][Weaponed] = 0;
 	SetPlayerHealth(playerid, PlayerInfo[playerid][Vida]);
 	SetPlayerArmour(playerid, PlayerInfo[playerid][Colete]);
 	SetPlayerScore(playerid, PlayerInfo[playerid][user_score]);
-	GivePlayerMoney(playerid, PlayerInfo[playerid][user_cash]);
+	GiveMoney(playerid, 500);
 	SetPlayerInterior(playerid, PlayerInfo[playerid][Interior]);
 	SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][VW]);
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][user_skin], PlayerInfo[playerid][pPosX], PlayerInfo[playerid][pPosY], PlayerInfo[playerid][pPosZ], PlayerInfo[playerid][pPosA], 0, 0, 0, 0 ,0, 0);
 	SpawnPlayer(playerid);
 	TextDrawHideForPlayer(playerid, TextLogin);
 	TogglePlayerSpectating(playerid, 0);
+	new query [90];
+	mysql_format(Database, query, sizeof(query), "INSERT INTO `pweapons` (`ID`)\
+    VALUES ('%d')", PlayerInfo[playerid][user_id]);
+    mysql_tquery(Database, query);
+
 
 	LoggedIn[playerid] = true;
 	PlayerInfo[playerid][user_logged] = 1;
@@ -1170,6 +1206,11 @@ public OnPlayerLoad(playerid)
 	cache_get_value_name_int(0, "JailedTime", PlayerInfo[playerid][pJailedTime]);
 	cache_get_value_name(0, "ForumName", PlayerInfo[playerid][pForumName]);
 
+	cache_get_value_name_int(0, "PlayingHours", PlayerInfo[playerid][pPlayingHours]);
+	cache_get_value_name_int(0, "Minutes", PlayerInfo[playerid][pMinutes]);
+	cache_get_value_name_int(0, "Paycheck", PlayerInfo[playerid][pPaycheck]);
+	cache_get_value_name_int(0, "Weaponed", PlayerInfo[playerid][Weaponed]);
+
 	cache_get_value_name_int(0, "JailTime", PlayerInfo[playerid][pJailTime]);
 	cache_get_value_name_int(0, "Prisoned", PlayerInfo[playerid][pPrisoned]);
 
@@ -1182,32 +1223,13 @@ public OnPlayerLoad(playerid)
 	cache_get_value_name_int(0, "House", PlayerInfo[playerid][pHouse]);
 	cache_get_value_name_int(0, "Entrance", PlayerInfo[playerid][pEntrance]);
 
-	cache_get_value_name_int(0, "Guns1", PlayerInfo[playerid][pGuns][0]);
-	cache_get_value_name_int(0, "Ammo1", PlayerInfo[playerid][pAmmo][0]);
-	cache_get_value_name_int(0, "Guns2", PlayerInfo[playerid][pGuns][1]);
-	cache_get_value_name_int(0, "Ammo2", PlayerInfo[playerid][pAmmo][1]);
-	cache_get_value_name_int(0, "Guns3", PlayerInfo[playerid][pGuns][2]);
-	cache_get_value_name_int(0, "Ammo3", PlayerInfo[playerid][pAmmo][2]);
-	cache_get_value_name_int(0, "Guns4", PlayerInfo[playerid][pGuns][3]);
-	cache_get_value_name_int(0, "Ammo4", PlayerInfo[playerid][pAmmo][3]);
-	cache_get_value_name_int(0, "Guns5", PlayerInfo[playerid][pGuns][4]);
-	cache_get_value_name_int(0, "Ammo5", PlayerInfo[playerid][pAmmo][4]);
-	cache_get_value_name_int(0, "Guns6", PlayerInfo[playerid][pGuns][5]);
-	cache_get_value_name_int(0, "Ammo6", PlayerInfo[playerid][pAmmo][5]);
-	cache_get_value_name_int(0, "Guns7", PlayerInfo[playerid][pGuns][6]);
-	cache_get_value_name_int(0, "Ammo7", PlayerInfo[playerid][pAmmo][6]);
-	cache_get_value_name_int(0, "Guns8", PlayerInfo[playerid][pGuns][7]);
-	cache_get_value_name_int(0, "Ammo8", PlayerInfo[playerid][pAmmo][7]);
-	cache_get_value_name_int(0, "Guns9", PlayerInfo[playerid][pGuns][8]);
-	cache_get_value_name_int(0, "Ammo9", PlayerInfo[playerid][pAmmo][8]);
-	cache_get_value_name_int(0, "Guns10", PlayerInfo[playerid][pGuns][9]);
-	cache_get_value_name_int(0, "Ammo10", PlayerInfo[playerid][pAmmo][9]);
-	cache_get_value_name_int(0, "Guns11", PlayerInfo[playerid][pGuns][10]);
-	cache_get_value_name_int(0, "Ammo11", PlayerInfo[playerid][pAmmo][10]);
-	cache_get_value_name_int(0, "Guns12", PlayerInfo[playerid][pGuns][11]);
-	cache_get_value_name_int(0, "Ammo12", PlayerInfo[playerid][pAmmo][11]);
-	cache_get_value_name_int(0, "Guns13", PlayerInfo[playerid][pGuns][12]);
-	cache_get_value_name_int(0, "Ammo13", PlayerInfo[playerid][pAmmo][12]);
+	new query[1080];
+	mysql_format(Database, query, sizeof(query), "SELECT * FROM `pweapons` WHERE `ID` = '%i'", PlayerInfo[playerid][user_id]);
+	mysql_tquery(Database, query, "OnPlayerLoadWeapons", "d", playerid);
+
+	mysql_format(Database, query, sizeof(query), "SELECT * FROM `tickets` WHERE `ID` = '%i'", PlayerInfo[playerid][user_id]);
+	mysql_tquery(Database, query, "OnPlayerLoadTickets", "d", playerid);
+
 
 	LoggedIn[playerid] = true;
 	PlayerInfo[playerid][user_logged] = 1;
@@ -1218,8 +1240,8 @@ public OnPlayerLoad(playerid)
 	SetPlayerHealth(playerid, PlayerInfo[playerid][Vida]);
 	SetPlayerArmour(playerid, PlayerInfo[playerid][Colete]);
 	SetPlayerScore(playerid, PlayerInfo[playerid][user_score]);
-	GivePlayerMoney(playerid, PlayerInfo[playerid][user_cash]);
-	SetWeapons(playerid);
+	GiveMoney(playerid, PlayerInfo[playerid][user_cash]);
+	//SetWeapons(playerid);
 	SetPlayerInterior(playerid, PlayerInfo[playerid][Interior]);
 	SetPlayerVirtualWorld(playerid, PlayerInfo[playerid][VW]);
 	SetSpawnInfo(playerid, 0, PlayerInfo[playerid][user_skin], PlayerInfo[playerid][pPosX], PlayerInfo[playerid][pPosY], PlayerInfo[playerid][pPosZ], PlayerInfo[playerid][pPosA], 0, 0, 0, 0 ,0, 0);
@@ -1262,6 +1284,32 @@ public OnPlayerLoad(playerid)
 	SaveAccount(playerid);
 	return 1;
 }
+/*
+forward OnLoadPlayerWeapons(playerid);
+public OnLoadPlayerWeapons(playerid)
+{
+	new rows = cache_num_rows();
+	if(rows)
+	{
+		static
+			weaponid,
+			ammo;
+
+		//for(new i; i < rows; i++)
+		for(new i = 0; i < rows; i++) // loop through all the rows that were found
+		{
+			cache_get_value_name_int(i, "weaponid", weaponid);
+			cache_get_value_name_int(i, "ammo", ammo);
+			if(!(0 <= weaponid <= 46)) // check if weapon is valid (should be)
+			{
+				printf("Warning: OnLoadPlayerWeapons - Unknown weaponid '%d'. Pulando.", weaponid);
+				continue;
+			}
+			GiveWeaponToPlayer(playerid, weaponid, ammo);
+		}
+	}
+    return 1;
+}*/
 
 CMD:mudarsenha(playerid, params[])
 {
@@ -1291,10 +1339,10 @@ public OnPlayerClickMap(playerid, Float:fX, Float:fY, Float:fZ)
 {
 	if(PlayerInfo[playerid][user_admin] >= 4)
 	{
-SetPVarFloat(playerid, "FindX", fX);
-SetPVarFloat(playerid, "FindY", fY);
-SetPVarFloat(playerid, "FindZ", fZ);
-ShowPlayerDialog(playerid, 4600, DIALOG_STYLE_MSGBOX, "Teleporte Mapa", "Você deseja ir ao local que marcou no mapa?", #Sim, #Não);
+		SetPVarFloat(playerid, "FindX", fX);
+		SetPVarFloat(playerid, "FindY", fY);
+		SetPVarFloat(playerid, "FindZ", fZ);
+		ShowPlayerDialog(playerid, 4600, DIALOG_STYLE_MSGBOX, "Teleporte Mapa", "Você deseja ir ao local que marcou no mapa?", #Sim, #Não);
 	}
 	return 1;
 }
@@ -1303,27 +1351,27 @@ Crate_Delete(crateid)
 {
 	if (crateid != -1 && CrateData[crateid][crateExists])
 	{
-/*new
-	string[64];
+		/*new
+			string[64];
 
-format(string, sizeof(string), "DELETE FROM `crates` WHERE `crateID` = '%d'", CrateData[crateid][crateID]);
-mysql_tquery(g_iHandle, string);*/
+		format(string, sizeof(string), "DELETE FROM `crates` WHERE `crateID` = '%d'", CrateData[crateid][crateID]);
+		mysql_tquery(g_iHandle, string);*/
 
-if (IsValidDynamic3DTextLabel(CrateData[crateid][crateText3D]))
-	DestroyDynamic3DTextLabel(CrateData[crateid][crateText3D]);
+		if (IsValidDynamic3DTextLabel(CrateData[crateid][crateText3D]))
+			DestroyDynamic3DTextLabel(CrateData[crateid][crateText3D]);
 
-if (IsValidDynamicObject(CrateData[crateid][crateObject]))
-	DestroyDynamicObject(CrateData[crateid][crateObject]);
+		if (IsValidDynamicObject(CrateData[crateid][crateObject]))
+			DestroyDynamicObject(CrateData[crateid][crateObject]);
 
-/*foreach (new i : Player) if (PlayerInfo[i][pCarryCrate] == crateid) {
-	PlayerInfo[i][pCarryCrate] = -1;
+		/*foreach (new i : Player) if (PlayerInfo[i][pCarryCrate] == crateid) {
+			PlayerInfo[i][pCarryCrate] = -1;
 
-	RemovePlayerAttachedObject(i, 4);
-	SetPlayerSpecialAction(i, SPECIAL_ACTION_NONE);
-}*/
-CrateData[crateid][crateExists] = false;
-CrateData[crateid][crateID] = 0;
-CrateData[crateid][crateVehicle] = INVALID_VEHICLE_ID;
+			RemovePlayerAttachedObject(i, 4);
+			SetPlayerSpecialAction(i, SPECIAL_ACTION_NONE);
+		}*/
+		CrateData[crateid][crateExists] = false;
+		CrateData[crateid][crateID] = 0;
+		CrateData[crateid][crateVehicle] = INVALID_VEHICLE_ID;
 	}
 	return 1;
 }
@@ -1454,6 +1502,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	}
 	house_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	wf_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
+	gat_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
+	co_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
+	bank_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	return true;
 }
 
@@ -1486,6 +1537,7 @@ ReturnIP(playerid)
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	inj_OnPlayerTakeDamage(playerid, issuerid, weaponid, bodypart);
+	dmg_OnPlayerTakeDamage(playerid, Float: amount, weaponid, bodypart);
 	return 1;
 }
 
@@ -1776,8 +1828,8 @@ stock getVehicleName(vehicleid){
 	new nameVeh[75];
 
 	if (vehmodel < 400 || vehmodel > 611) {
-strcat(nameVeh, "Nenhum");
-return nameVeh;
+		strcat(nameVeh, "Nenhum");
+		return nameVeh;
 	}
 	strcat(nameVeh, VehicleNames[vehmodel - 400]);
 	return nameVeh;
@@ -1850,21 +1902,21 @@ stock NomeArma(armaid)
 ReturnWeaponName(weaponid)
 {
 	static
-name[32];
+		name[32];
 
 	GetWeaponName(weaponid, name, sizeof(name));
 
 	if (!weaponid)
-name = "Nenhuma";
+		name = "Nenhuma";
 
 	else if (weaponid == 18)
-name = "Molotov";
+		name = "Molotov";
 
 	else if (weaponid == 44)
-name = "Visão Noturna";
+		name = "Visão Noturna";
 
 	else if (weaponid == 45)
-name = "Explosivo";
+		name = "Explosivo";
 
 	return name;
 }
@@ -2038,7 +2090,7 @@ stock GetWeapon(playerid)
 	new weaponid = GetPlayerWeapon(playerid);
 
 	if (1 <= weaponid <= 46 && PlayerInfo[playerid][pGuns][g_aWeaponSlots[weaponid]] == weaponid)
-return weaponid;
+		return weaponid;
 
 	return 0;
 }
@@ -2059,7 +2111,7 @@ SetWeapons(playerid)
 	ResetPlayerWeapons(playerid);
 
 	for (new i = 0; i < 13; i ++) if (PlayerInfo[playerid][pGuns][i] > 0 && PlayerInfo[playerid][pAmmo][i] > 0) {
-	GivePlayerWeapon(playerid, PlayerInfo[playerid][pGuns][i], PlayerInfo[playerid][pAmmo][i]);
+		GivePlayerWeapon(playerid, PlayerInfo[playerid][pGuns][i], PlayerInfo[playerid][pAmmo][i]);
 	}
 	return 1;
 }

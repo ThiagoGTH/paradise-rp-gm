@@ -1630,7 +1630,6 @@ CMD:givecar(playerid, params[])
 	return 1;
 }
 
-
 CMD:createimpound(playerid, params[])
 {
 	static
