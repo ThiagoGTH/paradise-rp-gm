@@ -29,7 +29,7 @@ enum carData {
 };
 new CarData[MAX_DYNAMIC_CARS][carData];
 */
-CMD:destruircarro(playerid, params[])
+CMD:destruiradmincarro(playerid, params[])
 {
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
 	if(PlayerInfo[playerid][user_admin] < 4) return SendClientMessage(playerid, COLOR_GREY, "Você não possui autorização para utilizar esse comando.");
@@ -66,7 +66,7 @@ CMD:destruircarro(playerid, params[])
 	return 1;
 }
 
-CMD:criarcarro(playerid, params[])
+CMD:criaradmincarro(playerid, params[])
 {
 	static
 	    model[32],

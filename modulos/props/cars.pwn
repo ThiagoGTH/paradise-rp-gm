@@ -281,6 +281,12 @@ stock Car_Spawn(carid)
 	return 0;
 }
 
+stock cars_OnGMInit()
+{
+	mysql_tquery(Database, "SELECT * FROM `cars`", "Car_Load", "");
+	return 1;
+}
+
 forward Car_Load();
 public Car_Load()
 {
@@ -384,13 +390,13 @@ Car_WeaponStorage(playerid, carid)
 	Dialog_Show(playerid, Trunk, DIALOG_STYLE_LIST, "Car Trunk", string, "Select", "Cancel");
 	return 1;
 }
-
+/*
 Car_ShowTrunk(playerid, carid)
 {
 	static
 	    string[MAX_CAR_STORAGE * 32];
 		//name[32];
-/*
+
 	string[0] = 0;
 
 	for (new i = 0; i != MAX_CAR_STORAGE; i ++)
@@ -406,13 +412,13 @@ Car_ShowTrunk(playerid, carid)
 			}
 			else format(string, sizeof(string), "%s%s (%d)\n", string, name, CarStorage[carid][i][cItemQuantity]);
 		}
-	}*/
+	}
 	strcat(string, "Weapon Storage");
 
 //	PlayerInfo[playerid][pStorageSelect] = 0;
-	Dialog_Show(playerid, CarStorage, DIALOG_STYLE_LIST, "Car Storage", string, "Select", "Cancel");
+	Dialog_Show(playerid, CarStorage, DIALOG_STYLE_LIST, "Car Storage", "Weapon Storage\n2", "Selecionar", "Cancelar");
 	return 1;
-}
+}*/
 
 
 Car_Create(ownerid, modelid, Float:x, Float:y, Float:z, Float:angle, color1, color2, type = 0)
@@ -1028,7 +1034,9 @@ Dialog:Trunk(playerid, response, listitem, inputtext[])
 			}
 	    }
 		else {
-		    Car_ShowTrunk(playerid, carid);
+		    //Car_ShowTrunk(playerid, carid);
+			Dialog_Show(playerid, CarStorage, DIALOG_STYLE_LIST, "Car Storage", "Weapon Storage\n2", "Selecionar", "Cancelar");
+			//Dialog_Show(playerid, CarStorage, DIALOG_STYLE_LIST, "Car Storage", "Weapon Storage\n2", "Selecionar", "Cancelar");
 		}
 	}
 	return 1;
@@ -1305,50 +1313,10 @@ CMD:trunk(playerid, params[])
 		if (CarData[id][carLocked])
 		    return SendErrorMessage(playerid, "The vehicle's trunk is locked.");
 
-		Car_ShowTrunk(playerid, id);
+		//Car_ShowTrunk(playerid, id);
+		Dialog_Show(playerid, CarStorage, DIALOG_STYLE_LIST, "Car Storage", "Weapon Storage\n2", "Selecionar", "Cancelar");
 	}
 	else SendErrorMessage(playerid, "You are not in range of any vehicle.");
-	return 1;
-}
-
-
-CMD:createcar(playerid, params[])
-{
-	static
-		model[32],
-		color1,
-		color2,
-		id = -1,
-		type = 0;
-
-    if (PlayerInfo[playerid][user_admin] < 5)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
-
-	if (sscanf(params, "s[32]I(-1)I(-1)I(0)", model, color1, color2, type))
- 	{
-	 	SendSyntaxMessage(playerid, "/createcar [model id/name] [color 1] [color 2] <faction>");
-	 	SendClientMessage(playerid, COLOR_YELLOW, "[TYPES]:{FFFFFF} 1: Police | 2: News | 3: Medical | 4: Government");
-	 	return 1;
-	}
-	if ((model[0] = GetVehicleModelByName(model)) == 0)
-	    return SendErrorMessage(playerid, "Invalid model ID.");
-
-	static
-	    Float:x,
-		Float:y,
-		Float:z,
-		Float:angle;
-
-    GetPlayerPos(playerid, x, y, z);
-	GetPlayerFacingAngle(playerid, angle);
-
-	id = Car_Create(0, model[0], x, y, z, angle, color1, color2, type);
-
-	if (id == -1)
-	    return SendErrorMessage(playerid, "The server has reached the limit for dynamic vehicles.");
-
-	SetPlayerPosEx(playerid, x, y, z + 2, 1000);
-	SendServerMessage(playerid, "You have successfully created vehicle ID: %d.", CarData[id][carVehicle]);
 	return 1;
 }
 
@@ -1461,7 +1429,7 @@ CMD:impound(playerid, params[])
 	return 1;
 }
 
-CMD:listcars(playerid, params[])
+CMD:listacarros(playerid, params[])
 {
 	new
 	    Float:fX,
@@ -1477,58 +1445,121 @@ CMD:listcars(playerid, params[])
 		for (new i = 0; i < MAX_DYNAMIC_CARS; i ++) if (Car_IsOwner(playerid, i)) {
 		    GetVehiclePos(CarData[i][carVehicle], fX, fY, fZ);
 
-		    SendClientMessageEx(playerid, COLOR_WHITE, "** ID: %d | Model: %s | Location: %s", CarData[i][carVehicle], ReturnVehicleModelName(CarData[i][carModel]), GetLocation(fX, fY, fZ));
+		    SendClientMessageEx(playerid, COLOR_WHITE, "* ID: %d | Modelo: %s | Localização: %s", CarData[i][carVehicle], ReturnVehicleModelName(CarData[i][carModel]), GetLocation(fX, fY, fZ));
 		    count++;
 		}
 		if (!count)
-		    SendClientMessage(playerid, COLOR_WHITE, "You don't own any vehicles.");
+		    SendClientMessage(playerid, COLOR_WHITE, "Você não possui nenhum veículo.");
 
 		SendClientMessage(playerid, COLOR_GREY, "-----------------------------------------------------------");
 	}
 	else if (PlayerInfo[playerid][user_admin] >= 3)
 	{
 		if (userid == INVALID_PLAYER_ID)
-	    	return SendErrorMessage(playerid, "You have specified an invalid player.");
+	    	return SendErrorMessage(playerid, "Você específicou o ID de um jogador inválido.");
 
 		SendClientMessage(playerid, COLOR_GREY, "-----------------------------------------------------------");
-  		SendClientMessageEx(playerid, COLOR_YELLOW, "Vehicles registered to %s (ID: %d):", pNome(userid), userid);
+  		SendClientMessageEx(playerid, COLOR_YELLOW, "Veículos de %s (ID: %d):", pNome(userid), userid);
 
 		for (new i = 0; i < MAX_DYNAMIC_CARS; i ++) if (Car_IsOwner(userid, i)) {
   			GetVehiclePos(CarData[i][carVehicle], fX, fY, fZ);
 
-			SendClientMessageEx(playerid, COLOR_WHITE, "** ID: %d | Model: %s | Location: %s", CarData[i][carVehicle], ReturnVehicleModelName(CarData[i][carModel]), GetLocation(fX, fY, fZ));
+			SendClientMessageEx(playerid, COLOR_WHITE, "** ID: %d | Modelo: %s | Localização: %s", CarData[i][carVehicle], ReturnVehicleModelName(CarData[i][carModel]), GetLocation(fX, fY, fZ));
 			count++;
 		}
 		if (!count)
-		    SendClientMessage(playerid, COLOR_WHITE, "That player doesn't own any vehicles.");
+		    SendClientMessage(playerid, COLOR_WHITE, "Este jogador não possui veículos.");
 
 		SendClientMessage(playerid, COLOR_GREY, "-----------------------------------------------------------");
 	}
 	return 1;
 }
 
-CMD:editcar(playerid, params[])
+CMD:destruircarro(playerid, params[])
+{
+	static
+	    id = 0;
+
+    if (PlayerInfo[playerid][user_admin] < 5)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
+
+	if (sscanf(params, "d", id))
+ 	{
+	 	if (IsPlayerInAnyVehicle(playerid))
+		 	id = GetPlayerVehicleID(playerid);
+
+		else return SendSyntaxMessage(playerid, "/destruircarro [id do veículo]");
+	}
+	if (!IsValidVehicle(id) || Car_GetID(id) == -1)
+	    return SendErrorMessage(playerid, "Você específicou o ID de um veículo inválido.");
+
+	Car_Delete(Car_GetID(id));
+	SendServerMessage(playerid, "Você destruiu com sucesso o veículo ID: %d.", id);
+	return 1;
+}
+
+CMD:criarcarro(playerid, params[])
+{
+	static
+		model[32],
+		color1,
+		color2,
+		id = -1,
+		type = 0;
+
+    if (PlayerInfo[playerid][user_admin] < 5)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
+
+	if (sscanf(params, "s[32]I(-1)I(-1)I(0)", model, color1, color2, type))
+ 	{
+	 	SendSyntaxMessage(playerid, "/criarcarro [modelid/nome] [cor 1] [cor 2] <facção>");
+	 	SendClientMessage(playerid, -1, "FACÇÕES: TIPOS: 1: Policial | 2: Notícias | 3: Medica | 4: Governamental");
+	 	return 1;
+	}
+	if ((model[0] = GetVehicleModelByName(model)) == 0)
+	    return SendErrorMessage(playerid, "Você específicou o ID de um veículo inválido.");
+
+	static
+	    Float:x,
+		Float:y,
+		Float:z,
+		Float:angle;
+
+    GetPlayerPos(playerid, x, y, z);
+	GetPlayerFacingAngle(playerid, angle);
+
+	id = Car_Create(0, model[0], x, y, z, angle, color1, color2, type);
+
+	if (id == -1)
+	    return SendErrorMessage(playerid, "O servidor chegou ao limite de veículos.");
+
+	SetPlayerPosEx(playerid, x, y, z + 2, 1000);
+	SendServerMessage(playerid, "Você criou com sucesso o veículo ID: %d.", CarData[id][carVehicle]);
+	return 1;
+}
+
+CMD:editarcarro(playerid, params[])
 {
 	static
 	    id,
 	    type[24],
 	    string[128];
 
-	if (PlayerInfo[playerid][user_admin] < 5)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
+	if (PlayerInfo[playerid][user_admin] < 4)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
 
 	if (sscanf(params, "ds[24]S()[128]", id, type, string))
  	{
-	 	SendSyntaxMessage(playerid, "/editcar [id] [name]");
-	    SendClientMessage(playerid, COLOR_YELLOW, "[NAMES]:{FFFFFF} location, faction, color1, color2");
+	 	SendSyntaxMessage(playerid, "/editarcarro [id] [syntax]");
+	    SendClientMessage(playerid, -1, "SYNTAXES: pos, fac, cor1, cor2");
 		return 1;
 	}
 	if (!IsValidVehicle(id) || Car_GetID(id) == -1)
-	    return SendErrorMessage(playerid, "You have specified an invalid vehicle ID.");
+	    return SendErrorMessage(playerid, "Você específicou o ID de um veículo inválido.");
 
 	id = Car_GetID(id);
 
-	if (!strcmp(type, "location", true))
+	if (!strcmp(type, "pos", true))
 	{
  		GetPlayerPos(playerid, CarData[id][carPos][0], CarData[id][carPos][1], CarData[id][carPos][2]);
 		GetPlayerFacingAngle(playerid, CarData[id][carPos][3]);
@@ -1537,79 +1568,79 @@ CMD:editcar(playerid, params[])
 		Car_Spawn(id);
 
 		SetPlayerPosEx(playerid, CarData[id][carPos][0], CarData[id][carPos][1], CarData[id][carPos][2] + 2.0, 1000);
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the location of vehicle ID: %d.", pNome(playerid), CarData[id][carVehicle]);
+		SendServerMessage(playerid, "Você alterou a posição do veículo ID: %d.", CarData[id][carVehicle]);
 	}
-	else if (!strcmp(type, "faction", true))
+	else if (!strcmp(type, "fac", true))
 	{
 	    new typeint;
 
 	    if (sscanf(string, "d", typeint))
      	{
-     	    SendSyntaxMessage(playerid, "/editcar [id] [faction] [type]");
-		 	SendClientMessage(playerid, COLOR_YELLOW, "[TYPES]:{FFFFFF} 1: Police | 2: News | 3: Medical | 4: Government");
+     	    SendSyntaxMessage(playerid, "/editarcarro [id] [fac] [tip]");
+		 	SendClientMessage(playerid, -1, "TIPOS: 1: Policial | 2: Notícias | 3: Medica | 4: Governamental");
 		 	return 1;
 		}
 		if (typeint < 0 || typeint > 4)
-		    return SendErrorMessage(playerid, "The specified type can't be below 0 or above 4.");
+		    return SendErrorMessage(playerid, "O tipo de facção não pode ser menor que um ou maior que quatro.");
 
 		CarData[id][carFaction] = typeint;
 
 		Car_Save(id);
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the type of vehicle ID: %d to %d.", pNome(playerid), CarData[id][carVehicle], typeint);
+		SendServerMessage(playerid, "Você alterou o tipo do veículo ID: %d para %d.", CarData[id][carVehicle], typeint);
 	}
-    else if (!strcmp(type, "color1", true))
+    else if (!strcmp(type, "cor1", true))
 	{
 	    new color1;
 
 	    if (sscanf(string, "d", color1))
-			return SendSyntaxMessage(playerid, "/editcar [id] [color1] [color 1]");
+			return SendSyntaxMessage(playerid, "/editarcarro [id] [cor1] [cor1]");
 
 		if (color1 < 0 || color1 > 255)
-		    return SendErrorMessage(playerid, "The specified color can't be below 0 or above 255.");
+		    return SendErrorMessage(playerid, "A cor específicada não pode ser menor que 0 ou maior que 255. que 255.");
 
 		CarData[id][carColor1] = color1;
 		ChangeVehicleColor(CarData[id][carVehicle], CarData[id][carColor1], CarData[id][carColor2]);
 
 		Car_Save(id);
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the color 1 of vehicle ID: %d to %d.", pNome(playerid), CarData[id][carVehicle], color1);
+		SendAdminAlert(COLOR_LIGHTRED, "Você ajustou a cor 1 do veículo ID: %d para %d.", CarData[id][carVehicle], color1);
 	}
-    else if (!strcmp(type, "color2", true))
+    else if (!strcmp(type, "cor2", true))
 	{
 	    new color2;
 
 	    if (sscanf(string, "d", color2))
-			return SendSyntaxMessage(playerid, "/editcar [id] [color2] [color 2]");
+			return SendSyntaxMessage(playerid, "/editarcarro [id] [cor2] [cor2]");
 
 		if (color2 < 0 || color2 > 255)
-		    return SendErrorMessage(playerid, "The specified color can't be below 0 or above 255.");
+		    return SendErrorMessage(playerid, "A cor específicada não pode ser menor que 0 ou maior que 255. que 255.");
 
 		CarData[id][carColor2] = color2;
 		ChangeVehicleColor(CarData[id][carVehicle], CarData[id][carColor1], CarData[id][carColor2]);
 
 		Car_Save(id);
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the color 2 of vehicle ID: %d to %d.", pNome(playerid), CarData[id][carVehicle], color2);
+		SendServerMessage(playerid, "Você ajustou a cor 2 do veículo ID: %d para %d.", CarData[id][carVehicle], color2);
 	}
 	return 1;
 }
 
 
-CMD:givecar(playerid, params[])
+CMD:darcarro(playerid, params[])
 {
 	static
 		userid,
 	    model[32];
 
-    if (PlayerInfo[playerid][user_admin] < 4)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
+    if (PlayerInfo[playerid][user_admin] < 5)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
 
 	if (sscanf(params, "us[32]", userid, model))
-	    return SendSyntaxMessage(playerid, "/givecar [playerid/name] [modelid/name]");
+	    return SendSyntaxMessage(playerid, "/darcarro [playerid/nome] [modelid/nome]");
 
 	if (Car_GetCount(userid) >= MAX_OWNABLE_CARS)
-	    return SendErrorMessage(playerid, "This player already owns the maximum amount of cars.");
+	    return SendErrorMessage(playerid, "Este jogador já possui o número máximo de veículos.");
 
     if ((model[0] = GetVehicleModelByName(model)) == 0)
-	    return SendErrorMessage(playerid, "Invalid model ID.");
+	    return SendErrorMessage(playerid, "Modelo/ID do veículo inválido.");
 
 	static
 	    Float:x,
@@ -1624,13 +1655,13 @@ CMD:givecar(playerid, params[])
 	id = Car_Create(PlayerInfo[userid][user_id], model[0], x, y + 2, z + 1, angle, random(127), random(127), 0);
 
 	if (id == -1)
-	    return SendErrorMessage(playerid, "The server has reached the limit for dynamic vehicles.");
+	    return SendErrorMessage(playerid, "O servidor chegou ao limite de veículos.");
 
-	SendServerMessage(playerid, "You have created vehicle ID: %d for %s.", CarData[id][carVehicle], pNome(userid));
+	SendServerMessage(playerid, "Você criou o veículo ID: %d para %s.", CarData[id][carVehicle], pNome(userid));
 	return 1;
 }
 
-CMD:createimpound(playerid, params[])
+CMD:criarpa(playerid, params[])
 {
 	static
 	    id = -1,
@@ -1638,62 +1669,62 @@ CMD:createimpound(playerid, params[])
 		Float:y,
 		Float:z;
 
-    if (PlayerInfo[playerid][user_admin] < 5)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
+    if (PlayerInfo[playerid][user_admin] < 4)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
 
 	if (GetPlayerInterior(playerid) > 0 || GetPlayerVirtualWorld(playerid) > 0)
- 		return SendErrorMessage(playerid, "You can only create impound lots outside interiors.");
+ 		return SendErrorMessage(playerid, "Você não pode criar um ponto de apreensão em um interior.");
 
 	GetPlayerPos(playerid, x, y, z);
 
 	id = Impound_Create(x, y, z);
 
 	if (id == -1)
-	    return SendErrorMessage(playerid, "The server has reached the limit for impound lots.");
+	    return SendErrorMessage(playerid, "O servidor chegou ao limite de pontos de apreensão.");
 
-	SendServerMessage(playerid, "You have successfully created impound lot ID: %d.", id);
+	SendServerMessage(playerid, "Você criou com sucesso o ponto de apreensão ID: %d.", id);
 	return 1;
 }
 
-CMD:destroyimpound(playerid, params[])
+CMD:destruirpa(playerid, params[])
 {
 	static
 	    id = 0;
 
-    if (PlayerInfo[playerid][user_admin] < 5)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
+    if (PlayerInfo[playerid][user_admin] < 4)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
 
 	if (sscanf(params, "d", id))
-	    return SendSyntaxMessage(playerid, "/destroyimpound [impound id]");
+	    return SendSyntaxMessage(playerid, "/destruirpa [id ponto de apreensão]");
 
 	if ((id < 0 || id >= MAX_IMPOUND_LOTS) || !ImpoundData[id][impoundExists])
-	    return SendErrorMessage(playerid, "You have specified an invalid impound lot ID.");
+	    return SendErrorMessage(playerid, "Você específicou um ponto de apreensão inválido.");
 
 	Impound_Delete(id);
-	SendServerMessage(playerid, "You have successfully destroyed impound lot ID: %d.", id);
+	SendServerMessage(playerid, "Você destruiu com sucesso o ponto de apreensão ID: %d.", id);
 	return 1;
 }
 
-CMD:editimpound(playerid, params[])
+CMD:editarpa(playerid, params[])
 {
 	static
 	    id,
 	    type[24],
 	    string[128];
 
-	if (PlayerInfo[playerid][user_admin] < 5)
-	    return SendErrorMessage(playerid, "You don't have permission to use this command.");
+	if (PlayerInfo[playerid][user_admin] < 4)
+	    return SendErrorMessage(playerid, "Você não possui autorização para utilizar esse comando.");
 
 	if (sscanf(params, "ds[24]S()[128]", id, type, string))
  	{
-	 	SendSyntaxMessage(playerid, "/editimpound [id] [name]");
-	    SendClientMessage(playerid, COLOR_YELLOW, "[NAMES]:{FFFFFF} location, release");
+	 	SendSyntaxMessage(playerid, "/editarpa [id] [syntax]");
+	    SendClientMessage(playerid, -1, "SYNTAXES: local, soltura");
 		return 1;
 	}
 	if ((id < 0 || id >= MAX_IMPOUND_LOTS) || !ImpoundData[id][impoundExists])
-	    return SendErrorMessage(playerid, "You have specified an invalid impound lot ID.");
+	    return SendErrorMessage(playerid, "Você específicou um ponto de apreensão inválido.");
 
-	if (!strcmp(type, "location", true))
+	if (!strcmp(type, "local", true))
 	{
 	    static
 	        Float:x,
@@ -1709,9 +1740,9 @@ CMD:editimpound(playerid, params[])
 		Impound_Refresh(id);
 		Impound_Save(id);
 
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the location of impound ID: %d.", pNome(playerid), id);
+		SendAdminAlert(COLOR_LIGHTRED, "Você editou a posição do ponto de apreensão ID: %d.", id);
 	}
-	else if (!strcmp(type, "release", true))
+	else if (!strcmp(type, "soltura", true))
 	{
 	    static
 	        Float:x,
@@ -1728,7 +1759,7 @@ CMD:editimpound(playerid, params[])
 		ImpoundData[id][impoundRelease][3] = angle;
 
 		Impound_Save(id);
-		SendAdminAlert(COLOR_LIGHTRED, "[ADMIN]: %s has adjusted the release point of impound ID: %d.", pNome(playerid), id);
+		SendServerMessage(playerid, "Você editou o ponto de soltura do ponto de apreensão ID: %d.", id);
 	}
 	return 1;
 }

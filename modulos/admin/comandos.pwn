@@ -1,5 +1,3 @@
-#include <YSI\y_hooks>
-
 enum e_InteriorData {
 	e_InteriorName[32],
 	e_InteriorID,
@@ -242,17 +240,15 @@ CMD:admins(playerid, params[])
 {
 	new count = 0;
 	SendClientMessage(playerid, COLOR_WHITE, "Administradores online:");
+
     foreach (new i : Player) if (PlayerInfo[i][user_admin] > 0)
 	{
-		if(GetPVarInt(i, "TogAdmin") == 0)
-		{
-       	if(AdminTrabalhando[playerid] == 1)
+		if(AdminTrabalhando[playerid] == 1)
 			SendClientMessageEx(playerid, COLOR_WHITE, "* %s %s (%s) [%d]: {33CC33}Em trabalho", AdminRankName(playerid), pNome(i), PlayerInfo[i][pForumName], i);
 		else
-		    SendClientMessageEx(playerid, COLOR_WHITE, "* %s %s (%s) [%d]: {FF6347}Em roleplay", AdminRankName(playerid), pNome(i), PlayerInfo[i][pForumName], i);
+			SendClientMessageEx(playerid, COLOR_WHITE, "* %s %s (%s) [%d]: {FF6347}Em roleplay", AdminRankName(playerid), pNome(i), PlayerInfo[i][pForumName], i);
 
         count++;
-		}
 	}
 	if (!count) {
 	    SendClientMessage(playerid, COLOR_WHITE, "Não há nenhum administrador online no momento.");
@@ -287,15 +283,16 @@ CMD:aa(playerid)
 	if(PlayerInfo[playerid][user_admin] >= 3)
 	{
 		strcat(MEGAString, "[Senior Admin] /setskin /clima /desbanir /setcustomskin /entrarcarro /areparo /curartodos /pegarip\n");
-		strcat(MEGAString, "[Senior Admin] /darvida /darcolete /resetararmas /perto\n\n");
+		strcat(MEGAString, "[Senior Admin] /darvida /darcolete /resetararmas /perto /listacarros\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 4)
 	{
-		strcat(MEGAString, "[Lead Admin] /criarcarro /destruircarro /fly /ovni /ovnisair /dararma /setscore /setarequipe\n\n");
+		strcat(MEGAString, "[Lead Admin] /criaradmincarro /destruiradmincarro /fly /ovni /ovnisair /dararma /setscore /criarpa /destruirpa\n");
+		strcat(MEGAString, "[Lead Admin] /editarpa /editarcarro /criarcarro /destruircarro\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 5)
 	{
-	    strcat(MEGAString, "[Head Admin] /setadmin /gmx /trancarserver /salvartodos /dargrana\n\n");
+	    strcat(MEGAString, "[Head Admin] /setadmin /gmx /trancarserver /salvartodos /dargrana /darcarro /setarequipe\n\n");
 	}
 	
 	if(PlayerInfo[playerid][pFactionMod] >= 1)

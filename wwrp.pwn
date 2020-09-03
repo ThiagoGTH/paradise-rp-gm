@@ -527,6 +527,7 @@ public OnGameModeInit()
 	gat_OnGMInit();
 	co_OnGMInit();
 	bank_OnGMInit();
+	cars_OnGMInit();
 	Server_Load();
 	return 1;
 }
