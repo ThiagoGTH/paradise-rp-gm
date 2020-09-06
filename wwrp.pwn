@@ -325,6 +325,21 @@ enum PlayerData
 	pCarSeller,
 	pCarOffered,
 	pCarValue,
+
+	pGender,
+	pBirthdate[24],
+	pOrigin[32],
+	pPsgDados,
+
+	pAltura,
+	pPeso,
+	pEtnia,
+	pOlhos,
+	pCabelo,
+
+	pDriveLic,
+	pFlyLic,
+	pAge,
 	user_logged,
 	Nome[MAX_PLAYER_NAME]
 };
@@ -435,6 +450,8 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/admin/spec.pwn"
 
 // PLAYERS
+#include "../gamemodes/modulos/players/aparencia.pwn"
+#include "../gamemodes/modulos/players/driverlicense.pwn"
 #include "../gamemodes/modulos/players/rp.pwn"
 #include "../gamemodes/modulos/players/animlist.pwn"
 #include "../gamemodes/modulos/players/vehicles.pwn"
@@ -444,16 +461,14 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/players/stats.pwn"
 #include "../gamemodes/modulos/players/savewep.pwn"
 
+// Server
+#include "../gamemodes/modulos/server/RealTime.pwn"
+
 // MAPAS
 #include "../gamemodes/modulos/mapas/customaps.pwn"
 #include "../gamemodes/modulos/mapas/prison.pwn"
 #include "../gamemodes/modulos/mapas/interiormap.pwn"
 
-// Server
-#include "../gamemodes/modulos/server/RealTime.pwn"
-
-//
-//#include "../gamemodes/modulos/sys/air.pwn"
 
 public OnGameModeInit()
 {
@@ -728,7 +743,18 @@ public SaveAccount(playerid)
 	`PlayingHours` = '%d', \
 	`Minutes` = '%d', \
 	`Paycheck` = '%i', \
-	`Weaponed` = '%d' WHERE `ID` = '%i'",
+	`Weaponed` = '%d', \
+	`Gender` = '%d', \
+	`Birthdate` = '%s', \
+	`Origin` = '%s', \
+	`PsgDados` = '%d', \
+	`Altura` = '%d', \
+	`Peso` = '%d', \
+	`Etnia` = '%d', \
+	`Olhos` = '%d', \
+	`Cabelo` = '%d', \
+	`DriveLic` = '%d', \
+	`FlyLic` = '%d' WHERE `ID` = '%i'",
 	PlayerInfo[playerid][user_cash],
 	PlayerInfo[playerid][user_kills],
 	PlayerInfo[playerid][user_deaths],
@@ -762,6 +788,21 @@ public SaveAccount(playerid)
 	PlayerInfo[playerid][pMinutes],
 	PlayerInfo[playerid][pPaycheck],
 	PlayerInfo[playerid][Weaponed],
+
+	PlayerInfo[playerid][pGender],
+	PlayerInfo[playerid][pBirthdate],
+	PlayerInfo[playerid][pOrigin],
+	PlayerInfo[playerid][pPsgDados],
+
+	PlayerInfo[playerid][pAltura],
+	PlayerInfo[playerid][pPeso],
+	PlayerInfo[playerid][pEtnia],
+	PlayerInfo[playerid][pOlhos],
+	PlayerInfo[playerid][pCabelo],
+
+	PlayerInfo[playerid][pDriveLic],
+	PlayerInfo[playerid][pFlyLic],
+
 	PlayerInfo[playerid][user_id]);
 	mysql_tquery(Database, query);
 	SaveWeaponsSQL(playerid);
@@ -835,6 +876,22 @@ stock ZerarDados(playerid)
 	PlayerInfo[playerid][pPrisoned] = 0;
 	PlayerInfo[playerid][pDragged] = 0;
 	PlayerInfo[playerid][pPlayingHours] = 0;
+
+	PlayerInfo[playerid][pGender] = -1;
+	PlayerInfo[playerid][pBirthdate][0] = 0;
+	PlayerInfo[playerid][pOrigin][0] = 0;
+	PlayerInfo[playerid][pPsgDados] = -1;
+
+	PlayerInfo[playerid][pAltura] = -1;
+	PlayerInfo[playerid][pPeso] = -1;
+	PlayerInfo[playerid][pEtnia] = -1;
+	PlayerInfo[playerid][pOlhos] = -1;
+	PlayerInfo[playerid][pCabelo] = -1;
+	PlayerInfo[playerid][pAge] = -1;
+
+	PlayerInfo[playerid][pDriveLic] = -1;
+	PlayerInfo[playerid][pFlyLic] = -1;
+
 	PlayerInfo[playerid][pMinutes] = 0;
 	PlayerInfo[playerid][pPaycheck] = 0;
 	PlayerInfo[playerid][Weaponed] = 0;
@@ -1219,6 +1276,20 @@ public OnPlayerLoad(playerid)
 	cache_get_value_name_int(0, "Paycheck", PlayerInfo[playerid][pPaycheck]);
 	cache_get_value_name_int(0, "Weaponed", PlayerInfo[playerid][Weaponed]);
 
+	cache_get_value_name_int(0, "Gender", PlayerInfo[playerid][pGender]);
+	cache_get_value_name(0, "Birthdate", PlayerInfo[playerid][pBirthdate]);
+	cache_get_value_name(0, "Origin", PlayerInfo[playerid][pOrigin]);
+	cache_get_value_name_int(0, "PsgDados", PlayerInfo[playerid][pPsgDados]);
+
+	cache_get_value_name_int(0, "Altura", PlayerInfo[playerid][pAltura]);
+	cache_get_value_name_int(0, "Peso", PlayerInfo[playerid][pPeso]);
+	cache_get_value_name_int(0, "Etnia", PlayerInfo[playerid][pEtnia]);
+	cache_get_value_name_int(0, "Olhos", PlayerInfo[playerid][pOlhos]);
+	cache_get_value_name_int(0, "Cabelo", PlayerInfo[playerid][pCabelo]);
+
+	cache_get_value_name_int(0, "DriveLice", PlayerInfo[playerid][pDriveLic]);
+	cache_get_value_name_int(0, "FlyLice", PlayerInfo[playerid][pFlyLic]);
+
 	cache_get_value_name_int(0, "JailTime", PlayerInfo[playerid][pJailTime]);
 	cache_get_value_name_int(0, "Prisoned", PlayerInfo[playerid][pPrisoned]);
 
@@ -1292,32 +1363,6 @@ public OnPlayerLoad(playerid)
 	SaveAccount(playerid);
 	return 1;
 }
-/*
-forward OnLoadPlayerWeapons(playerid);
-public OnLoadPlayerWeapons(playerid)
-{
-	new rows = cache_num_rows();
-	if(rows)
-	{
-		static
-			weaponid,
-			ammo;
-
-		//for(new i; i < rows; i++)
-		for(new i = 0; i < rows; i++) // loop through all the rows that were found
-		{
-			cache_get_value_name_int(i, "weaponid", weaponid);
-			cache_get_value_name_int(i, "ammo", ammo);
-			if(!(0 <= weaponid <= 46)) // check if weapon is valid (should be)
-			{
-				printf("Warning: OnLoadPlayerWeapons - Unknown weaponid '%d'. Pulando.", weaponid);
-				continue;
-			}
-			GiveWeaponToPlayer(playerid, weaponid, ammo);
-		}
-	}
-    return 1;
-}*/
 
 CMD:mudarsenha(playerid, params[])
 {
@@ -1334,11 +1379,12 @@ CMD:pegaradm(playerid, params[])
 	SaveAccount(playerid);
 	return 1;
 }
+
 Dialog:DIALOG_PASSWORDCHANGE(playerid, response, listitem, inputtext[])
 {
 	if(response)
 	{
-bcrypt_hash(inputtext, BCRYPT_COST, "OnPasswordChanged", "i", playerid);
+		bcrypt_hash(inputtext, BCRYPT_COST, "OnPasswordChanged", "i", playerid);
 	}
 	return 1;
 }
@@ -1387,8 +1433,8 @@ Crate_Delete(crateid)
 forward PlayerCheck();
 public PlayerCheck()
 {
-	OnTimerCheck();
 	TotalledCheck();
+	OnTimerCheck();
 	static
 		str[128];
 
@@ -1515,6 +1561,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	co_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	bank_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	deal_OnDialogResponse(playerid, dialogid, response, listitem);
+	dmv_OnDialogResponse(playerid, dialogid, response, listitem);
 	return true;
 }
 

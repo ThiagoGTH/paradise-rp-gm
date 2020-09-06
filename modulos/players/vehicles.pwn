@@ -87,7 +87,7 @@ CMD:veh(playerid, params[])
 	CoreVehicles[vehicleid][vehTemporary] = true;
     format(string, sizeof(string), "AdmCmd: %s spawnou um %s (%d, %d).", pNome(playerid), ReturnVehicleModelName(model[0]), color1, color2);
 	ABroadCast(COLOR_LIGHTRED, string, 1);
-	SaveLogs("/criarcarro", string);
+	SaveLogs("/veh", string);
 	return 1;
 }
 
