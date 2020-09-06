@@ -1,5 +1,3 @@
-#include <a_samp>
-
 new WeatherTimeCount;
 new WeatherTimeChange = 3*1000*60*60; // a cada quanto tempo irá alterar o clima
 

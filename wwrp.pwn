@@ -1387,6 +1387,7 @@ Crate_Delete(crateid)
 forward PlayerCheck();
 public PlayerCheck()
 {
+	OnTimerCheck();
 	TotalledCheck();
 	static
 		str[128];
