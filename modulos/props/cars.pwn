@@ -339,7 +339,7 @@ stock Impound_Refresh(impoundid)
 	    if (IsValidDynamicPickup(ImpoundData[impoundid][impoundPickup]))
 		    DestroyDynamicPickup(ImpoundData[impoundid][impoundPickup]);
 
-		format(string, sizeof(string), "[Impound %d]\n{FFFFFF}/impound to impound a vehicle.", impoundid);
+		format(string, sizeof(string), "[Ponto de Apreensão %d]\n{FFFFFF}/apreender.", impoundid);
         ImpoundData[impoundid][impoundText3D] = CreateDynamic3DTextLabel(string, COLOR_DARKBLUE, ImpoundData[impoundid][impoundLot][0], ImpoundData[impoundid][impoundLot][1], ImpoundData[impoundid][impoundLot][2], 20.0);
         ImpoundData[impoundid][impoundPickup] = CreateDynamicPickup(1239, 23, ImpoundData[impoundid][impoundLot][0], ImpoundData[impoundid][impoundLot][1], ImpoundData[impoundid][impoundLot][2]);
 	}
@@ -825,7 +825,7 @@ Dialog:ReleaseCar(playerid, response, listitem, inputtext[])
 			SetVehiclePos(CarData[carid][carVehicle], CarData[carid][carPos][0], CarData[carid][carPos][1], CarData[carid][carPos][2]);
 			SetVehicleZAngle(CarData[carid][carVehicle], CarData[carid][carPos][3]);
 
-			SendServerMessage(playerid, "Você liberou o seu %s por %s.", ReturnVehicleModelName(CarData[carid][carModel]), FormatNumber(CarData[carid][carImpoundPrice]));
+			SendServerMessage(playerid, "Você liberou o seu %s por $%s.", ReturnVehicleModelName(CarData[carid][carModel]), FormatNumber(CarData[carid][carImpoundPrice]));
 
             CarData[carid][carImpounded] = -1;
             CarData[carid][carImpoundPrice] = 0;
@@ -895,7 +895,7 @@ CMD:abandonar(playerid, params[])
 	{
 	    if (isnull(params) || (!isnull(params) && strcmp(params, "confirmo", true) != 0))
 	    {
-	        SendSyntaxMessage(playerid, "/abandon [confirmo]");
+	        SendSyntaxMessage(playerid, "/abandonar [confirmo]");
 	        SendClientMessage(playerid, COLOR_LIGHTRED, "AVISO: {FFFFFF} Você está prestes a abandonar o seu veículo SEM o direito à refundo.");
 		}
 		else if (CarData[id][carImpounded] != -1)
@@ -908,7 +908,7 @@ CMD:abandonar(playerid, params[])
 
 			Car_Delete(id);
 
-			SendServerMessage(playerid, "Você abandonou o seu %s.", ReturnVehicleModelName(model));
+			SendServerMessage(playerid, "Você abandonou o(a) seu(sua) %s.", ReturnVehicleModelName(model));
 		}
 	}
 	else SendErrorMessage(playerid, "Você não está perto de nada que possa abandonar.");
@@ -956,18 +956,18 @@ CMD:vender(playerid, params[])
 			PlayerInfo[targetid][pCarValue] = price;
 
 		    SendServerMessage(playerid, "Você ofereceu à %s para comprar o seu veículo %s por %s.", pNome(targetid), ReturnVehicleModelName(CarData[carid][carModel]), FormatNumber(price));
-            SendServerMessage(targetid, "%s ofereceu o veículo %s por %s (type \"/aceitar veiculo\" para aceitar).", pNome(playerid), ReturnVehicleModelName(CarData[carid][carModel]), FormatNumber(price));
+            SendServerMessage(targetid, "%s ofereceu o veículo %s por %s (type \"/comprar veiculo\" para aceitar).", pNome(playerid), ReturnVehicleModelName(CarData[carid][carModel]), FormatNumber(price));
 		}
 		else SendErrorMessage(playerid, "Você não está perto de nenhum de seus veículos.");
 	}
 	return 1;
 }
 
-CMD:aceitar(playerid, params[])
+CMD:comprar(playerid, params[])
 {
 	if (isnull(params))
  	{
-	 	SendSyntaxMessage(playerid, "/aceitar [syntax]");
+	 	SendSyntaxMessage(playerid, "/comprar [syntax]");
 		SendClientMessage(playerid, -1, "SYNTAXES: veiculo");
 		return 1;
 	}
@@ -1089,6 +1089,40 @@ CMD:unmod(playerid, params[])
 	else SendErrorMessage(playerid, "Você não está dentro de nada que possa modificar.");
 	return 1;
 }*/
+
+
+CMD:motor(playerid, params[])
+{
+	new vehicleid = GetPlayerVehicleID(playerid);
+	new carid = GetPlayerVehicleID(playerid);
+
+	if (IsVehicleImpounded(vehicleid))
+    	return SendErrorMessage(playerid, "Este veículo está apreendido e você não pode usá-lo.");
+
+	if ((carid = Car_GetID(vehicleid)) != -1 && Car_IsOwner(playerid, carid))
+	{
+	    if (GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
+	        return SendErrorMessage(playerid, "Você precisa ser o motorista!");
+
+		if (ReturnVehicleHealth(vehicleid) <= 300)
+			return SendErrorMessage(playerid, "Esse veículo está com o motor fundido e não pode ser iniciado.");
+
+		switch (GetEngineStatus(vehicleid))
+		{
+			case false:
+			{
+				SetEngineStatus(vehicleid, true);
+				SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "* %s insere a chave na ignição do veículo e liga o motor.", pNome(playerid));
+			}
+			case true:
+			{
+				SetEngineStatus(vehicleid, false);
+			}
+		}
+		return 1;
+	}
+	return 1;
+}
 
 CMD:portamalas(playerid, params[])
 {

@@ -426,6 +426,7 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/props/gates.pwn"
 #include "../gamemodes/modulos/props/bank.pwn"
 #include "../gamemodes/modulos/props/cars.pwn"
+#include "../gamemodes/modulos/props/dealership.pwn"
 
 // ADMIN
 #include "../gamemodes/modulos/admin/comandos.pwn"
@@ -614,10 +615,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 }
 public OnPlayerSpawn(playerid)
 {
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 0);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_MICRO_UZI, 0);
+	SetPlayerSkillLevel(playerid, WEAPONSKILL_SPAS12_SHOTGUN, 0);
 	spec_OnPlayerSpawn(playerid);
 	inj_OnPlayerSpawn(playerid);
 	house_OnPlayerSpawn(playerid);
-
 	return 1;
 }
 
@@ -1506,6 +1509,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	gat_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	co_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
 	bank_OnDialogResponse(playerid, dialogid, response, listitem, inputtext);
+	deal_OnDialogResponse(playerid, dialogid, response, listitem);
 	return true;
 }
 

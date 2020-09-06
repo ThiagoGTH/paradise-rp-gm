@@ -8,7 +8,7 @@ enum coreVehicles {
 new CoreVehicles[MAX_VEHICLES][coreVehicles];
 new vehiclecallsign[MAX_VEHICLES];
 
-CMD:destruiradmincarro(playerid, params[])
+CMD:destruirveh(playerid, params[])
 {
     if(PlayerInfo[playerid][user_logged] == 0) return SendClientMessage(playerid, COLOR_GRAD1, "Você não está logado.");
 	if(PlayerInfo[playerid][user_admin] < 4) return SendClientMessage(playerid, COLOR_GREY, "Você não possui autorização para utilizar esse comando.");
@@ -45,7 +45,7 @@ CMD:destruiradmincarro(playerid, params[])
 	return 1;
 }
 
-CMD:criaradmincarro(playerid, params[])
+CMD:veh(playerid, params[])
 {
 	static
 	    model[32],
@@ -56,7 +56,7 @@ CMD:criaradmincarro(playerid, params[])
 	if(PlayerInfo[playerid][user_admin] < 4) return SendClientMessage(playerid, COLOR_GREY, "Você não possui autorização para utilizar esse comando.");
 
 	if (sscanf(params, "s[32]I(-1)I(-1)", model, color1, color2))
-	    return SendSyntaxMessage(playerid, "/criarcarro [model id/nome] <cor 1> <cor 2>");
+	    return SendSyntaxMessage(playerid, "/veh [model id/nome] <cor 1> <cor 2>");
 
 	if ((model[0] = GetVehicleModelByName(model)) == 0)
 	    return SendErrorMessage(playerid, "Modelo inválido.");
@@ -91,36 +91,7 @@ CMD:criaradmincarro(playerid, params[])
 	return 1;
 }
 
-CMD:motor(playerid, params[])
-{
-	new vehicleid = GetPlayerVehicleID(playerid);
 
-	if (!IsEngineVehicle(vehicleid))
-		return SendErrorMessage(playerid, "Você não está em um veículo.");
-
-	if (GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
-	    return SendErrorMessage(playerid, "Você não pode fazer isso se não é o motorista do veículo.");
-
-	/*if (CoreVehicles[vehicleid][vehFuel] < 1)
-	    return SendErrorMessage(playerid, "The fuel tank is empty.");*/
-
-	if (ReturnVehicleHealth(vehicleid) <= 300)
-	    return SendErrorMessage(playerid, "Esse veículo está com o motor fundido e não pode ser iniciado.");
-
-	switch (GetEngineStatus(vehicleid))
-	{
-	    case false:
-	    {
-	        SetEngineStatus(vehicleid, true);
-	        SendNearbyMessage(playerid, 30.0, COLOR_PURPLE, "* %s insere a chave na ignição do veículo e liga o motor.", pNome(playerid));
-		}
-		case true:
-		{
-		    SetEngineStatus(vehicleid, false);
-		}
-	}
-	return 1;
-}
 
 CMD:luzes(playerid, params[])
 {

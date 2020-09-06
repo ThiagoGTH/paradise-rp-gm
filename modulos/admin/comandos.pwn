@@ -287,7 +287,7 @@ CMD:aa(playerid)
 	}
 	if(PlayerInfo[playerid][user_admin] >= 4)
 	{
-		strcat(MEGAString, "[Lead Admin] /criaradmincarro /destruiradmincarro /fly /ovni /ovnisair /dararma /setscore /criarpa /destruirpa\n");
+		strcat(MEGAString, "[Lead Admin] /veh /destruirveh /fly /ovni /ovnisair /dararma /setscore /criarpa /destruirpa\n");
 		strcat(MEGAString, "[Lead Admin] /editarpa /editarcarro /criarcarro /destruircarro\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 5)
@@ -984,9 +984,10 @@ CMD:ir(playerid, params[])
 		else if (!strcmp(type, "carro", true))
 		{
 			new vehicleid;
-			if (sscanf(params, "d", vehicleid)) return SendSyntaxMessage(playerid, "/ir carro [id]");
+			if (sscanf(params, "d", vehicleid)) 
+				return SendSyntaxMessage(playerid, "/ir carro [id]");
 
-			if (vehicleid < 1 || vehicleid > MAX_VEHICLES || !IsValidVehicle(vehicleid))
+			if (vehicleid < 1 || vehicleid > MAX_DYNAMIC_CARS)
 				return SendErrorMessage(playerid, "Você especificou o ID de um veículo inexistente.");
 
 			static
