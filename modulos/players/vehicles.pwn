@@ -91,8 +91,6 @@ CMD:veh(playerid, params[])
 	return 1;
 }
 
-
-
 CMD:luzes(playerid, params[])
 {
 	new vehicleid = GetPlayerVehicleID(playerid);

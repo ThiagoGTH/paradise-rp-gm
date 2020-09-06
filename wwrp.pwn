@@ -442,6 +442,7 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/props/bank.pwn"
 #include "../gamemodes/modulos/props/cars.pwn"
 #include "../gamemodes/modulos/props/dealership.pwn"
+#include "../gamemodes/modulos/props/tunning.pwn"
 
 // ADMIN
 #include "../gamemodes/modulos/admin/comandos.pwn"
@@ -632,6 +633,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 	cars_OnPlayerStateChange(playerid, newstate);
 	return 1;
 }
+
 public OnPlayerSpawn(playerid)
 {
 	SetPlayerSkillLevel(playerid, WEAPONSKILL_PISTOL, 0);
@@ -643,11 +645,19 @@ public OnPlayerSpawn(playerid)
 	return 1;
 }
 
+public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
+{
+	fac_OnMSR(playerid, extraid, index, modelid, response);
+	tune_OnMSR(playerid, extraid, modelid, response);
+	return 1;
+}
+
 public OnPlayerClickTextDraw(playerid, Text:clickedid)
 {
 	spec_OnPlyCkTD(playerid, Text:clickedid);
 	return 1;
 }
+
 public OnPlayerDisconnect(playerid, reason)
 {
 	SaveAccount(playerid);
@@ -2030,36 +2040,36 @@ stock SaveLogs(log[], string[])
 stock SendClientMessageEx(playerid, color, const text[], {Float, _}:...)
 {
 	static
-args,
-str[144];
+		args,
+		str[144];
 
 	if ((args = numargs()) == 3)
 	{
-SendClientMessage(playerid, color, text);
+		SendClientMessage(playerid, color, text);
 	}
 	else
 	{
-while (--args >= 3)
-{
-	#emit LCTRL 5
-	#emit LOAD.alt args
-	#emit SHL.C.alt 2
-	#emit ADD.C 12
-	#emit ADD
-	#emit LOAD.I
-	#emit PUSH.pri
-}
-#emit PUSH.S text
-#emit PUSH.C 144
-#emit PUSH.C str
-#emit PUSH.S 8
-#emit SYSREQ.C format
-#emit LCTRL 5
-#emit SCTRL 4
+		while (--args >= 3)
+		{
+			#emit LCTRL 5
+			#emit LOAD.alt args
+			#emit SHL.C.alt 2
+			#emit ADD.C 12
+			#emit ADD
+			#emit LOAD.I
+			#emit PUSH.pri
+		}
+		#emit PUSH.S text
+		#emit PUSH.C 144
+		#emit PUSH.C str
+		#emit PUSH.S 8
+		#emit SYSREQ.C format
+		#emit LCTRL 5
+		#emit SCTRL 4
 
-SendClientMessage(playerid, color, str);
+		SendClientMessage(playerid, color, str);
 
-#emit RETN
+		#emit RETN
 	}
 	return 1;
 }

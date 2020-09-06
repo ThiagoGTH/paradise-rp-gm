@@ -461,7 +461,7 @@ Faction_Create(name[], type)
 	return -1;
 }
 
-public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
+stock fac_OnMSR(playerid, extraid, index, modelid, response)
 {
 	if ((response) && (extraid == MODEL_SELECTION_SKINS))
 	{

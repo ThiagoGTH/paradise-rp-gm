@@ -268,7 +268,7 @@ CMD:aa(playerid)
 
 	if(PlayerInfo[playerid][user_admin] >= 1)
 	{
-	    strcat(MEGAString, "{33AA33}_______________________________ COMANDOS ADMINISTRATIVOS _______________________________{FFFFFF}\n\n");
+	    strcat(MEGAString, "{33AA33}_______________________________ {FFFFFF}COMANDOS ADMINISTRATIVOS{33AA33} _______________________________\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 1)
 	{
@@ -288,11 +288,11 @@ CMD:aa(playerid)
 	if(PlayerInfo[playerid][user_admin] >= 4)
 	{
 		strcat(MEGAString, "[Lead Admin] /veh /destruirveh /fly /ovni /ovnisair /dararma /setscore /criarpa /destruirpa\n");
-		strcat(MEGAString, "[Lead Admin] /editarpa /editarcarro /criarcarro /destruircarro\n\n");
+		strcat(MEGAString, "[Lead Admin] /editarpa /editarcarro /atunar /apaintjob /apintarcarro\n\n");
 	}
 	if(PlayerInfo[playerid][user_admin] >= 5)
 	{
-	    strcat(MEGAString, "[Head Admin] /setadmin /gmx /trancarserver /salvartodos /dargrana /darcarro /setarequipe\n\n");
+	    strcat(MEGAString, "[Head Admin] /setadmin /gmx /trancarserver /salvartodos /dargrana /darcarro /setarequipe /criarcarro /destruicarro\n\n");
 	}
 	
 	if(PlayerInfo[playerid][pFactionMod] >= 1)

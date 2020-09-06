@@ -89,7 +89,7 @@ CMD:mostrarlicencas(playerid, params[])
 		}
 		else
 		{
-			SendClientMessage(playerid, COLOR_GRAD1, "   Jogador está muito longe.");
+			SendErrorMessage(playerid, "Este jogador está muito longe.");
 		}
 	}
 	return 1;
