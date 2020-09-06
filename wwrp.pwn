@@ -448,6 +448,10 @@ stock Float:GetPlayerDistanceFromPlayer(playerid, targetid)
 #include "../gamemodes/modulos/mapas/customaps.pwn"
 #include "../gamemodes/modulos/mapas/prison.pwn"
 #include "../gamemodes/modulos/mapas/interiormap.pwn"
+
+// Server
+#include "../gamemodes/modulos/server/RealTime.pwn"
+
 //
 //#include "../gamemodes/modulos/sys/air.pwn"
 
